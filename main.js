@@ -51,6 +51,11 @@ var cubeRy = 0.0;
 var cubeRz = 0.0;
 var cubeS = 0.5;
 
+async function initMesh () {
+  let objStr = await utils.get_objstr("assets/test.obj");
+
+  return new OBJ.initMesh(objStr);  
+};
 
 function main() {
 
