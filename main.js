@@ -68,7 +68,7 @@ function main() {
   }
   utils.resizeCanvasToDisplaySize(gl.canvas);
 
-  var mesh = new OBJ.Mesh(objStr);
+  var mesh = new OBJ.Mesh(hammer);
 
   console.log(mesh);
 
