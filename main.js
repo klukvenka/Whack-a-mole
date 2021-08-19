@@ -52,9 +52,9 @@ var cubeRz = 0.0;
 var cubeS = 0.5;
 
 async function initMesh () {
-  let objStr = await utils.get_objstr("assets/test.obj");
+  let objStr = await utils.get_objstr("Assets/hammer.obj");
 
-  return new OBJ.initMesh(objStr);  
+  return new OBJ.Mesh(objStr);  
 };
 
 function main() {
@@ -68,7 +68,9 @@ function main() {
   }
   utils.resizeCanvasToDisplaySize(gl.canvas);
 
-  var mesh = initMesh();
+  var mesh = new OBJ.Mesh(objStr);
+
+  console.log(mesh);
 
   //use this aspect ratio to keep proportions
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -111,7 +113,7 @@ function main() {
 
   var indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexBuffer), gl.STATIC_DRAW);
 
   drawScene();
 
@@ -152,7 +154,7 @@ function main() {
     gl.uniformMatrix4fv(matrixLocation, gl.FALSE, utils.transposeMatrix(projectionMatrix));
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);
     window.requestAnimationFrame(drawScene);
   }
 
