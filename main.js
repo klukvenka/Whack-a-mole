@@ -71,8 +71,6 @@ function main() {
 
   var mesh = new OBJ.Mesh(hammer);
 
-  console.log(mesh);
-
   //use this aspect ratio to keep proportions
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
@@ -88,14 +86,13 @@ function main() {
 
   // look up where the vertex data needs to go.
   //var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-  //var colorAttributeLocation = gl.getAttribLocation(program, "a_color");
+  var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+  var colorAttributeLocation = gl.getAttribLocation(program, "a_color");
   matrixLocation = gl.getUniformLocation(program, "matrix");
 
 
   perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
 
-
-  /*
   // Create a vertex array object (attribute state)
   vao = gl.createVertexArray();
   // and make it the one we're currently working with
@@ -116,43 +113,9 @@ function main() {
   var indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indices), gl.STATIC_DRAW);
-  */
   
-  vao = initVao(gl,program,mesh);
-
-
+  
   drawScene();
-
-  function initVao(gl, program, mesh) {
-    // look up where the vertex data needs to go.
-    var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    var colorAttributeLocation = gl.getAttribLocation(program, "a_color");
-  
-    // Create a vertex array object (attribute state)
-    let vao = gl.createVertexArray();
-    // and make it the one we're currently working with
-    gl.bindVertexArray(vao);
-  
-    // Create a buffer and put three 2d clip space points in it
-    var positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.vertices), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(program.POSITION_ATTRIBUTE);
-    gl.vertexAttribPointer(program.POSITION_ATTRIBUTE, 3, gl.FLOAT, false, 0, 0);
-  
-    var colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.vertices), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(program.COLOR_ATTRIBUTE);
-    gl.vertexAttribPointer(program.COLOR_ATTRIBUTE, 3, gl.FLOAT, false, 0, 0);
-  
-    var indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indices), gl.STATIC_DRAW);
-  
-    return vao;
-  }
-
 
   function animate() {
     var currentTime = (new Date).getTime();
