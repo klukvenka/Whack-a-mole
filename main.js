@@ -70,7 +70,7 @@ function main() {
   utils.resizeCanvasToDisplaySize(gl.canvas);
 
   var mesh = new OBJ.Mesh(hammer);
-  console.log(mesh.indices);
+  
 
   //use this aspect ratio to keep proportions
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -81,15 +81,15 @@ function main() {
   gl.enable(gl.DEPTH_TEST);
 
   programInfo = twgl.createProgramInfo(gl, [vertexShaderSource, fragmentShaderSource]);
+  console.log(mesh.indices);
 
-  bufferInfo = twgl.createBufferInfoFromArrays(gl, {
+
+  const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
     a_position: mesh.vertices,
-    // normal: mesh.vertexNormals,
-    indices: mesh.indices,
-    a_color: mesh.vertices
+    color: mesh.vertices,
+    indices: mesh.indices
     }
     );
-
 
   // // create GLSL shaders, upload the GLSL source, compile the shaders and link them
   // var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -169,7 +169,7 @@ function main() {
     // uniforms.u_viewInverse = camera;
     // uniforms.u_world = world;
     // uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
-    uniforms.matrix = projectionMatrix;
+    uniforms.matrix = utils.transposeMatrix(projectionMatrix);
 
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
     twgl.setUniforms(programInfo, uniforms);
