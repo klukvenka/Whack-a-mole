@@ -83,13 +83,13 @@ function main() {
 
   bufferInfo = twgl.createBufferInfoFromArrays(gl, {
     position: mesh.vertices,
-    normal: mesh.vertexNormals,
-    texcoord: mesh.textures,
-    indices: mesh.indices
+    // normal: mesh.vertexNormals,
+    indices: mesh.indices,
+    color : mesh.vertices
     }
     );
 
-  twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+  // twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
 
   // // create GLSL shaders, upload the GLSL source, compile the shaders and link them
   // var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -102,8 +102,11 @@ function main() {
   // var colorAttributeLocation = gl.getAttribLocation(program, "a_color");
   // matrixLocation = gl.getUniformLocation(program, "matrix");
 
+  const uniforms = {
+    u_worldViewProjection: []
+  };
 
-  // perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+  perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
 
   // // Create a vertex array object (attribute state)
   // vao = gl.createVertexArray();
@@ -127,7 +130,7 @@ function main() {
   // gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indices), gl.STATIC_DRAW);
   
   
-  // drawScene();
+  drawScene();
 
   // function animate() {
   //   var currentTime = (new Date).getTime();
@@ -144,30 +147,37 @@ function main() {
   // }
 
 
-  // function drawScene() {
-  //   animate();
+  function drawScene() {
+    // animate();
 
-  //   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  //   gl.clearColor(0, 0, 0, 0);
-  //   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  //   gl.enable(gl.DEPTH_TEST);
-  //   gl.enable(gl.CULL_FACE);
-  //   gl.useProgram(program);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.useProgram(programInfo.program);
 
-  //   // Bind the attribute/buffer set we want.
-  //   gl.bindVertexArray(vao);
+    // // Bind the attribute/buffer set we want.
+    // gl.bindVertexArray(vao);
+    var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
+    var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
 
-  //   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
+    var projectionMatrix = utils.multiplyMatrices(viewMatrix, worldMatrix);
+    var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, projectionMatrix);
 
-  //   var projectionMatrix = utils.multiplyMatrices(viewMatrix, worldMatrix);
-  //   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, projectionMatrix);
+    // gl.uniformMatrix4fv(matrixLocation, gl.FALSE, utils.transposeMatrix(projectionMatrix));
 
-  //   gl.uniformMatrix4fv(matrixLocation, gl.FALSE, utils.transposeMatrix(projectionMatrix));
+    // uniforms.u_viewInverse = camera;
+    // uniforms.u_world = world;
+    // uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
+    uniforms.u_worldViewProjection = projectionMatrix;
 
-  //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  //   gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);
-  //   window.requestAnimationFrame(drawScene);
-  // }
+    twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+    twgl.setUniforms(programInfo, uniforms);
+    gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
+
+    window.requestAnimationFrame(drawScene);
+  }
 
 }
 
