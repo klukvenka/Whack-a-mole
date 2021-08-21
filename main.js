@@ -71,13 +71,25 @@ function main() {
 
   var mesh = new OBJ.Mesh(hammer);
 
-  // //use this aspect ratio to keep proportions
-  // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  // gl.clearColor(0, 0, 0, 0);
+  //use this aspect ratio to keep proportions
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.clearColor(0, 0, 0, 0);
 
-  // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  // gl.enable(gl.CULL_FACE);
-  // gl.enable(gl.DEPTH_TEST);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.CULL_FACE);
+  gl.enable(gl.DEPTH_TEST);
+
+  programInfo = twgl.createProgramInfo(gl, [vertexShaderSource, fragmentShaderSource]);
+
+  bufferInfo = twgl.createBufferInfoFromArrays(gl, {
+    position: mesh.vertices,
+    normal: mesh.vertexNormals,
+    texcoord: mesh.textures,
+    indices: mesh.indices
+    }
+    );
+
+  twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
 
   // // create GLSL shaders, upload the GLSL source, compile the shaders and link them
   // var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
