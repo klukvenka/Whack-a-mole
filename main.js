@@ -76,13 +76,13 @@ function main() {
 
   //creates, compiles and link shaders to gl program
   programInfo = twgl.createProgramInfo(gl, [vertexShaderSource, fragmentShaderSource]);
-  console.log(mesh.indices);
-
+  
 
   //creating an object containing vertices, normals, idexes etc. to use with twgl
   const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
     a_position: mesh.vertices,
-    color: mesh.vertices,
+    //sending random colors (R G B alpha) for every vertex
+    a_color: new Uint8Array (Array.from({length: 3824}, () => Math.floor(Math.random() * 255))),
     indices: mesh.indices
     }
     );
