@@ -70,6 +70,7 @@ function main() {
   utils.resizeCanvasToDisplaySize(gl.canvas);
 
   var mesh = new OBJ.Mesh(hammer);
+  console.log(mesh.indices);
 
   //use this aspect ratio to keep proportions
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -82,14 +83,13 @@ function main() {
   programInfo = twgl.createProgramInfo(gl, [vertexShaderSource, fragmentShaderSource]);
 
   bufferInfo = twgl.createBufferInfoFromArrays(gl, {
-    position: mesh.vertices,
+    a_position: mesh.vertices,
     // normal: mesh.vertexNormals,
     indices: mesh.indices,
-    color : mesh.vertices
+    a_color: mesh.vertices
     }
     );
 
-  // twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
 
   // // create GLSL shaders, upload the GLSL source, compile the shaders and link them
   // var vertexShader = utils.createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
@@ -103,7 +103,7 @@ function main() {
   // matrixLocation = gl.getUniformLocation(program, "matrix");
 
   const uniforms = {
-    u_worldViewProjection: []
+    matrix: []
   };
 
   perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
@@ -148,8 +148,7 @@ function main() {
 
 
   function drawScene() {
-    // animate();
-
+    // animate()
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -170,13 +169,14 @@ function main() {
     // uniforms.u_viewInverse = camera;
     // uniforms.u_world = world;
     // uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
-    uniforms.u_worldViewProjection = projectionMatrix;
+    uniforms.matrix = projectionMatrix;
 
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
     twgl.setUniforms(programInfo, uniforms);
     gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
 
     window.requestAnimationFrame(drawScene);
+
   }
 
 }
