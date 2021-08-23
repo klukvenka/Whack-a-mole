@@ -34,12 +34,7 @@ var fs = `#version 300 es
   uniform vec3 eyePos;
 
   //Light parameters (see slides lesson L12-13 and example 4)
-  uniform vec3 LAPos;
   uniform vec3 LADir;
-  uniform float LAConeOut;
-  uniform float LAConeIn;
-  uniform float LADecay;
-  uniform float LATarget;
   uniform vec4 LAlightColor;
   uniform vec3 ADir;
   uniform vec4 diffuseColor;
@@ -48,19 +43,7 @@ var fs = `#version 300 es
   // Output color vector
   out vec4 color;
 
-  vec4 compLightColor(vec4 lightColor, float LTarget, float LDecay, vec3 LPos, vec3 LDir,
-            float LConeOut, float LConeIn) {
-    float LCosOut = cos(radians(LConeOut / 2.0));
-    float LCosIn = cos(radians(LConeOut * LConeIn / 2.0));
-
-    //lights
-    // -> Direct (retained only direct for now)
-    vec4 directLightCol = lightColor;
-
-    // ----> Select final component
-    return          directLightCol;
-  }
-
+  //computes Lambert diffuse light
   vec4 compDiffuse(vec3 lightDir, vec4 lightCol, vec3 normalVec, vec4 diffColor, vec3 eyedirVec) {
     
     // Diffuse component (retaining only lambert for now)
@@ -85,14 +68,9 @@ var fs = `#version 300 es
     float tbf = max(0.0, sign(abs(normalVec.y) - 0.707));
     vec3 t = normalize(cross(normalVec, vec3(1,0,0)));
     vec3 b = normalize(cross(normalVec, t));
-    
-    //lights
-    vec3 LAlightDir = LADir;
-    vec4 LAlightCol = compLightColor(LAlightColor, LATarget, LADecay, LAPos, LADir,
-                      LAConeOut, LAConeIn);
-    
+     
     // Diffuse
-    vec4 diffuse = compDiffuse(LAlightDir, LAlightCol, normalVec, diffColor, eyedirVec);
+    vec4 diffuse = compDiffuse(LADir, LAlightColor, normalVec, diffColor, eyedirVec);
     
     // final steps
     float dctf = 1.0 - SspecKwAng;
@@ -174,12 +152,7 @@ function main() {
     eyePos: [],
     diffuseColor: [],
     SspecKwAng: [],
-    LAPos: [],
     LADir: [],
-    LAConeOut: [],
-    LAConeIn: [],
-    LADecay: [],
-    LATarget: [],
     LAlightColor: []
   };
 
@@ -226,12 +199,7 @@ function main() {
     uniforms.eyePos = [cx,cy,cz];
     uniforms.diffuseColor = [1.0, 1.0, 1.0, 1];
     uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-    uniforms.LAPos = [20, 30, 50];
     uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
-    uniforms.LAConeOut = 30;
-    uniforms.LAConeIn = 80;
-    uniforms.LADecay = 0;
-    uniforms.LATarget = 61;
     uniforms.LAlightColor = [1, 1, 1, 1];
 
     //binding buffers and attributes to program
