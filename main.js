@@ -114,9 +114,7 @@ var projectionMatrix,
 var lastUpdateTime = (new Date).getTime();
 
 //Cube parameters
-var cubeTx = document.getElementById(this.pHTML+'slidex');
-
-console.log(document.getElementById(this.pHTML+'slidex'));
+var cubeTx = 0.0;
 var cubeTy = -1.0;
 var cubeTz = -1.0;
 var cubeRx = 20.0;
