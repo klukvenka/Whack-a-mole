@@ -43,7 +43,6 @@ var fs = `#version 300 es
   uniform vec4 LAlightColor;
   uniform vec3 ADir;
   uniform vec4 diffuseColor;
-  uniform vec4 ambientMatColor;
   uniform float SspecKwAng;
 
   // Output color vector
@@ -76,7 +75,6 @@ var fs = `#version 300 es
 
   void main() {
     vec4 diffColor = diffuseColor;
-    vec4 ambColor = ambientMatColor;
     
     vec3 normalVec = normalize(fs_norm);
     vec3 eyedirVec = normalize(eyePos - fs_pos);
@@ -175,7 +173,6 @@ function main() {
     ADir: [],
     eyePos: [],
     diffuseColor: [],
-    ambientMatColor: [],
     SspecKwAng: [],
     LAPos: [],
     LADir: [],
@@ -227,8 +224,7 @@ function main() {
     uniforms.wMatrix = utils.transposeMatrix(worldMatrix);
     uniforms.ADir = [0, 1, 0];
     uniforms.eyePos = [cx,cy,cz];
-    uniforms.diffuseColor = [1, 0.0, 0.0, 1];
-    uniforms.ambientMatColor = [0.0, 1.0, 0.0, 1];
+    uniforms.diffuseColor = [1.0, 1.0, 1.0, 1];
     uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
     uniforms.LAPos = [20, 30, 50];
     uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
