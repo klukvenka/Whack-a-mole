@@ -65,7 +65,7 @@ var fs = `#version 300 es
 
   void main() {
     vec4 texcol = texture(u_texture, fs_uv);
-    vec4 diffColor = diffuseColor + texcol;
+    vec4 diffColor = texcol;
     
     vec3 normalVec = normalize(fs_norm);
     vec3 eyedirVec = normalize(eyePos - fs_pos);
@@ -157,8 +157,6 @@ function main() {
     }
     );
 
-    console.log(mesh);
-
   //creating an object containing all uniforms
   const uniforms = {
     pMatrix: [],
@@ -213,11 +211,11 @@ function main() {
     uniforms.wMatrix = utils.transposeMatrix(worldMatrix);
     uniforms.ADir = [0, 1, 0];
     uniforms.eyePos = [cx,cy,cz];
-    uniforms.diffuseColor = [0.5, 1.0, 1.0, 1];
+    uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
     uniforms.u_texture = textures.cabinet,
     uniforms.SspecKwAng = 0.1; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
     uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
-    uniforms.LAlightColor = [1, 0.5, 1, 1];
+    uniforms.LAlightColor = [1, 1, 1, 1];
 
     //binding buffers and attributes to program
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
