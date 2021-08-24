@@ -2,10 +2,12 @@
 var vs = `#version 300 es
   #define POSITION_LOCATION 0
   #define NORMAL_LOCATION 1
+  #define UV_LOCATION 2
 
   //vertices and normals binding 
   layout(location = POSITION_LOCATION) in vec3 a_pos;
   layout(location = NORMAL_LOCATION) in vec3 a_norm;
+  layout(location = UV_LOCATION) in vec2 in_uv;
 
   //Projection Matrix and World Matrix passed as uniforms
   uniform mat4 pMatrix;
@@ -14,10 +16,12 @@ var vs = `#version 300 es
   //position and normal forwarded to frag shader
   out vec3 fs_pos;
   out vec3 fs_norm;
+  out vec2 fs_uv; // texture
 
   void main() {
     fs_pos = (wMatrix * vec4(a_pos, 1.0)).xyz;
     fs_norm = (wMatrix * vec4(a_norm, 0.0)).xyz;
+    fs_uv = vec2(in_uv.x, 1.0-in_uv.y);
     
     gl_Position = pMatrix * vec4(a_pos, 1.0);
 }`;
@@ -29,6 +33,9 @@ var fs = `#version 300 es
   //position and normal in projection matrix from vertex shader
   in vec3 fs_pos;
   in vec3 fs_norm;
+  in vec2 fs_uv;
+ 
+  uniform sampler2D u_texture;
 
   //self explanatory
   uniform vec3 eyePos;
@@ -57,7 +64,8 @@ var fs = `#version 300 es
   }
 
   void main() {
-    vec4 diffColor = diffuseColor;
+    vec4 texcol = texture(u_texture, fs_uv);
+    vec4 diffColor = diffuseColor + texcol;
     
     vec3 normalVec = normalize(fs_norm);
     vec3 eyedirVec = normalize(eyePos - fs_pos);
@@ -133,16 +141,23 @@ function main() {
   //creates, compiles and link shaders to gl program
   programInfo = twgl.createProgramInfo(gl, [vs, fs]);
   
-  
+
+  const textures = {
+    cabinet: twgl.createTexture(gl, {src: "Assets/Mole.png"}),
+  };
+
   //creating an object containing vertices, normals, idexes etc. to use with twgl
   const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
     a_pos: mesh.vertices,
     a_norm: mesh.vertexNormals,
+    in_uv: { numComponents: 2, data: mesh.textures},
     //sending random colors (R G B alpha) for every vertex
     // a_color: new Uint8Array (Array.from({length: (mesh.vertices.length/3)*4}, () => Math.floor(Math.random() * 255))),
     indices: mesh.indices
     }
     );
+
+    console.log(mesh);
 
   //creating an object containing all uniforms
   const uniforms = {
@@ -151,6 +166,7 @@ function main() {
     ADir: [],
     eyePos: [],
     diffuseColor: [],
+    u_texture: [],
     SspecKwAng: [],
     LADir: [],
     LAlightColor: []
@@ -197,10 +213,11 @@ function main() {
     uniforms.wMatrix = utils.transposeMatrix(worldMatrix);
     uniforms.ADir = [0, 1, 0];
     uniforms.eyePos = [cx,cy,cz];
-    uniforms.diffuseColor = [1.0, 1.0, 1.0, 1];
-    uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
+    uniforms.diffuseColor = [0.5, 1.0, 1.0, 1];
+    uniforms.u_texture = textures.cabinet,
+    uniforms.SspecKwAng = 0.1; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
     uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
-    uniforms.LAlightColor = [1, 1, 1, 1];
+    uniforms.LAlightColor = [1, 0.5, 1, 1];
 
     //binding buffers and attributes to program
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
