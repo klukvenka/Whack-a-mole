@@ -299,8 +299,6 @@ function defineSceneGraph() {
 //   lastUpdateTime = currentTime; //Need to update it for the next frame
 // }
 
-
-
 //draws the scene
 function drawScene() {
   // animate()
@@ -345,7 +343,6 @@ function drawScene() {
   });
 
 }
-
 
 function main() {
   
