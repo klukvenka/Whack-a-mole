@@ -2,6 +2,7 @@ var canvas;
 var gl = null,
   program = null;
 
+//Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
     /** directories */
     baseDir:null,
@@ -37,15 +38,6 @@ var projectionMatrix,
   worldMatrix, vao, matrixLocation;
 var lastUpdateTime = (new Date).getTime();
 
-//Cube parameters
-var cubeTx = 0.0;
-var cubeTy = -1.0;
-var cubeTz = -1.0;
-var cubeRx = 20.0;
-var cubeRy = 0.0;
-var cubeRz = 0.0;
-var cubeS = 0.5; 
-
 //Camera parameters
 var cx = 0;
 var cy = 3.0;
@@ -56,11 +48,16 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
-
+//Stores all the gometries of the objects
 var meshes = [];
+
+//Stores all the buffer information from twgl
 var bufferInfos = [];
+
+//Stores all the objects from the scene graph
 var objects;
 
+//uniforms definition, according to TWGL
 const uniforms = {
   pMatrix: [],
   wMatrix: [],
@@ -73,6 +70,7 @@ const uniforms = {
   LAlightColor: []
 };
 
+//Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
 async function loadMeshes(){
   let threedObjects = ['cabinet.obj', 'mole.obj', 'hammer.obj'];
   
@@ -83,6 +81,7 @@ async function loadMeshes(){
   }
 }
 
+//Function that creates and stores buffer info inside "meshes"
 function createBuffersInfo(gl){
   meshes.forEach(mesh => {
     bufferInfos.push(
@@ -98,6 +97,7 @@ function createBuffersInfo(gl){
   );
 }
 
+//Async function that initialize WebGL and then starts the main program
 async function initWebGl(){
   // Get a WebGL context
   canvas = document.getElementById("c");
@@ -131,11 +131,11 @@ async function initWebGl(){
   //creating an array containing all buffers information
   createBuffersInfo(gl);
   
+  //initialization ended. Go to the main program
   main();
-
 }
 
-//sceneGraph
+//sceneGraph definition (also blatantly copied from the the other guys whac-a-mole. WE HAVE TO REWRITE THIS!)
 function defineSceneGraph() {
   var cabinetSpace = new Node();
   cabinetSpace.localMatrix = utils.MakeWorld(0, 0, 0, 0, 0, 0, settings.scaleFactor);
@@ -285,6 +285,22 @@ function defineSceneGraph() {
   return cabinetSpace;
 }
 
+// function animate() {
+//   var currentTime = (new Date).getTime();
+//   if (lastUpdateTime) {
+//     //currentTime – lastUpdateTime is the time passed between frames
+//     var deltaC = (3 * (currentTime - lastUpdateTime)) / 1000.0;
+//     if (flag == 0) cubeTx += deltaC;
+//     else cubeTx -= deltaC;
+//     if (cubeTx >= 1.5) flag = 1;
+//     else if (cubeTx <= -1.5) flag = 0;
+//   }
+//   worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
+//   lastUpdateTime = currentTime; //Need to update it for the next frame
+// }
+
+
+
 //draws the scene
 function drawScene() {
   // animate()
@@ -297,21 +313,10 @@ function drawScene() {
 
   root.updateWorldMatrix();
 
-  // //binding buffers and attributes to program
-  // twgl.setBuffersAndAttributes(gl, programInfo, bufferInfos[0]);
-  
-  // //binding uniforms to program
-  // twgl.setUniforms(programInfo, uniforms);
-  
-  // //draw the elements!
-  // // gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
-  // twgl.drawBufferInfo(gl, bufferInfos[0]);
-
-  // Compute all the matrices for rendering
+  //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
-
   //creating projection matrix
-  var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
+  // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
 
   var projectionMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
@@ -343,31 +348,17 @@ function drawScene() {
 
 
 function main() {
-
+  
   //creating perspective matrix
   perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
   
+  //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
 
   drawScene();
 
-  // function animate() {
-  //   var currentTime = (new Date).getTime();
-  //   if (lastUpdateTime) {
-  //     //currentTime – lastUpdateTime is the time passed between frames
-  //     var deltaC = (3 * (currentTime - lastUpdateTime)) / 1000.0;
-  //     if (flag == 0) cubeTx += deltaC;
-  //     else cubeTx -= deltaC;
-  //     if (cubeTx >= 1.5) flag = 1;
-  //     else if (cubeTx <= -1.5) flag = 0;
-  //   }
-  //   worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-  //   lastUpdateTime = currentTime; //Need to update it for the next frame
-  // }
-  
   //continuously recalls himself
   window.requestAnimationFrame(drawScene);
-
 }
 
 window.onload = initWebGl;
