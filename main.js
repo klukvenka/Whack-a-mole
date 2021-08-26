@@ -57,6 +57,12 @@ var bufferInfos = [];
 //Stores all the objects from the scene graph
 var objects;
 
+//Texture
+var texture;
+
+//TWGL program information
+var programInfo;
+
 //uniforms definition, according to TWGL
 const uniforms = {
   pMatrix: [],
@@ -94,7 +100,7 @@ function createBuffersInfo(gl){
         indices: mesh.indices}
       )
     )}
-  );
+  ); 
 }
 
 //Async function that initialize WebGL and then starts the main program
@@ -173,7 +179,7 @@ function defineSceneGraph() {
 
   mole1Node.drawInfo = {
     programInfo: programInfo,
-    u_color: [0.0, 0.0, 1.0],
+    // u_color: [0.0, 0.0, 1.0],
     bufferLength: meshes[1].indices.length,
     vertexArray: bufferInfos[1],
   };
@@ -311,6 +317,8 @@ function drawScene() {
 
   root.updateWorldMatrix();
 
+  
+
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
@@ -325,8 +333,8 @@ function drawScene() {
   uniforms.wMatrix = utils.transposeMatrix(object.worldMatrix);
   uniforms.ADir = [0, 1, 0];
   uniforms.eyePos = [cx,cy,cz];
-  uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
-  uniforms.u_texture = texture,
+  // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
+  uniforms.u_texture = texture;
   uniforms.SspecKwAng = 0.1; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
   uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
   uniforms.LAlightColor = [1, 1, 1, 1];
@@ -342,6 +350,8 @@ function drawScene() {
 
   });
 
+  //continuously recalls himself
+  window.requestAnimationFrame(drawScene);
 }
 
 function main() {
@@ -353,9 +363,6 @@ function main() {
   root = defineSceneGraph();
 
   drawScene();
-
-  //continuously recalls himself
-  window.requestAnimationFrame(drawScene);
 }
 
 window.onload = initWebGl;
