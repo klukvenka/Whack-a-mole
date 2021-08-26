@@ -35,6 +35,8 @@ var settings = {
 var projectionMatrix,
   perspectiveMatrix,
   viewMatrix,
+  viewWorldMatrix,
+  normalsMatrix,
   worldMatrix, vao, matrixLocation;
 var lastUpdateTime = (new Date).getTime();
 
@@ -65,8 +67,9 @@ var programInfo;
 
 //uniforms definition, according to TWGL
 const uniforms = {
+  matrix: [],
   pMatrix: [],
-  wMatrix: [],
+  nMatrix: [],
   ADir: [],
   eyePos: [],
   diffuseColor: [],
@@ -325,12 +328,15 @@ function drawScene() {
   // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
 
-  var projectionMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
-  var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, projectionMatrix);
+  var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
+  var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
+
+  var normalsMatrix = utils.invertMatrix(utils.transposeMatrix(viewWorldMatrix));
 
   //populating uniform object
-  uniforms.pMatrix = utils.transposeMatrix(projectionMatrix);
-  uniforms.wMatrix = utils.transposeMatrix(object.worldMatrix);
+  uniforms.matrix = utils.transposeMatrix(projectionMatrix);
+  uniforms.pMatrix = utils.transposeMatrix(viewWorldMatrix);
+  uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
   uniforms.ADir = [0, 1, 0];
   uniforms.eyePos = [cx,cy,cz];
   // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
