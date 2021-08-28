@@ -294,6 +294,7 @@ function defineSceneGraph() {
   return cabinetSpace;
 }
 
+//MOLES ANIMATION
 var molesState = [0, 0, 0, 0, 0];//1 moving up, -1 moving down, 0 still
 // var animFinished = [false, false, false, false, false];
 var molesPos = [-1, -1, -1, -1, -1];//1 up, -1 down
@@ -305,7 +306,6 @@ function getRandomInt(max) {
 
 var lastMolesTime = [null, null, null, null, null];
 var molesDy = [0, 0, 0, 0, 0];
-
 
 function animateMoles(){
   
@@ -340,7 +340,7 @@ function animateMoles(){
   });
 }
 
-function moveMole(id, upDown){
+function moveMole(id, upDown) {
   var currentTime = (new Date).getTime();
   let dt;
   let dy;
@@ -387,9 +387,95 @@ function moveMole(id, upDown){
   molesState[id] = upDown;
 }
 
+//HAMMER ANIMATION
+var hammerAnimFinished = true;
+var lastHammerUpdateTime = null;
+var targetHole; //targeted hole
+var dxdz = [0, 0];//distance traveled by hammer on both axis
+
+$(document).on('keypress', function(e){
+  
+  key = String.fromCharCode(e.which);
+  
+  if ((key == 'q' || key == 'w' || key == 'e' || key == 'a' || key == 's') && hammerAnimFinished) {
+    switch(key){
+      case 'q':
+        targetHole = 0;
+        hammerAnimFinished = false;
+        break;
+      
+      case 'w':
+        targetHole = 1;
+        hammerAnimFinished = false;
+        break;
+      
+      case 'e':
+        targetHole = 2;
+        hammerAnimFinished = false;
+        break;
+
+      case 'a':
+        targetHole = 3;
+        hammerAnimFinished = false;
+        break;
+
+      case 's':
+        targetHole = 4;
+        hammerAnimFinished = false;
+        break;
+    }
+  }
+} 
+);
+
+function animateHammer() {
+  if (hammerAnimFinished) return;
+
+  // let hammer = objects[1];
+  // if (!positionBeforeAnim)
+  //   positionBeforeAnim = hammer.localMatrix
+
+  var currentTime = (new Date).getTime();
+  let dt;
+  if (lastHammerUpdateTime) {
+    dt = (currentTime - lastHammerUpdateTime);
+  } else {
+    dt = 1 / 50;
+  }
+  lastHammerUpdateTime = currentTime;
+
+  let distanceX = settings.hammerStartingPosition[0]-settings.molesStartingPositions[targetHole][0];
+  let distanceZ = settings.hammerStartingPosition[2]-settings.molesStartingPositions[targetHole][2];
+
+  dx = dt/80.0*(distanceX); 
+  dz = dt/80.0*(distanceZ);
+
+  dxdz[0] += Math.abs(dx);
+  dxdz[1] += dz;
+
+  console.log(dxdz);
+
+  objects[1].localMatrix = utils.multiplyMatrices(objects[1].localMatrix, utils.MakeTranslateMatrix(0.0-dx, 0.0, 0.0+dz));
+
+  if (dxdz[0] >= Math.abs(distanceX) && dxdz[1] >= distanceZ){
+    
+    dxdz[0] = 0;
+    dxdz[1] = 0;
+    objects[1].localMatrix = utils.MakeTranslateMatrix(
+      settings.hammerStartingPosition[0],
+      settings.hammerStartingPosition[1],
+      settings.hammerStartingPosition[2]
+    )
+    hammerAnimFinished = true;
+  }
+
+
+}
+
 //
 function animate() {
   
+  animateHammer();
   animateMoles();
 
 
