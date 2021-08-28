@@ -42,7 +42,7 @@ var lastUpdateTime = (new Date).getTime();
 
 //Camera parameters
 var cx = 0.0;
-var cy = 7.0;
+var cy = 3.0;
 var cz = 7.5;
 var elevation = 0.0;
 var angle = 0.0;
@@ -303,11 +303,13 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-//
-function animate() {
+var lastMolesTime = [null, null, null, null, null];
+var molesDy = [0, 0, 0, 0, 0];
+
+
+function animateMoles(){
   
   let randMole = getRandomInt(5);
-
 
   //if mole is still (either up or down) start movement
   if (molesState[randMole] == 0) {
@@ -336,11 +338,7 @@ function animate() {
 
   }
   });
-
 }
-
-var lastMolesTime = [null, null, null, null, null];
-var molesDy = [0, 0, 0, 0, 0];
 
 function moveMole(id, upDown){
   var currentTime = (new Date).getTime();
@@ -389,6 +387,13 @@ function moveMole(id, upDown){
   molesState[id] = upDown;
 }
 
+//
+function animate() {
+  
+  animateMoles();
+
+
+}
 
 //draws the scene
 function drawScene() {
