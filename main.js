@@ -23,11 +23,11 @@ var settings = {
     moleSpacePosition: [0, 1.1, 0.2],
     hammerStartingPosition: [-1.5, 1.4, 1.3],
     molesStartingPositions: [
-        [-0.63523, 0, 0],
-        [0, 0, 0],
-        [0.6353, 0, 0],
-        [-0.31763, -0.1, 0.4429],
-        [0.31763, -0.1, 0.4429]
+        [-0.63523, -0.6, 0],
+        [0, -0.6, 0],
+        [0.6353, -0.6, 0],
+        [-0.31763, -0.7, 0.4429],
+        [0.31763, -0.7, 0.4429]
     ],
 
 }
@@ -41,8 +41,8 @@ var projectionMatrix,
 var lastUpdateTime = (new Date).getTime();
 
 //Camera parameters
-var cx = 0;
-var cy = 3.0;
+var cx = 0.0;
+var cy = 7.0;
 var cz = 7.5;
 var elevation = 0.0;
 var angle = 0.0;
@@ -294,23 +294,107 @@ function defineSceneGraph() {
   return cabinetSpace;
 }
 
-// function animate() {
-//   var currentTime = (new Date).getTime();
-//   if (lastUpdateTime) {
-//     //currentTime – lastUpdateTime is the time passed between frames
-//     var deltaC = (3 * (currentTime - lastUpdateTime)) / 1000.0;
-//     if (flag == 0) cubeTx += deltaC;
-//     else cubeTx -= deltaC;
-//     if (cubeTx >= 1.5) flag = 1;
-//     else if (cubeTx <= -1.5) flag = 0;
-//   }
-//   worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-//   lastUpdateTime = currentTime; //Need to update it for the next frame
-// }
+var molesState = [0, 0, 0, 0, 0];//1 moving up, -1 moving down, 0 still
+// var animFinished = [false, false, false, false, false];
+var molesPos = [-1, -1, -1, -1, -1];//1 up, -1 down
+
+//only for test purposes
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+//
+function animate() {
+  
+  let randMole = getRandomInt(5);
+
+
+  //if mole is still (either up or down) start movement
+  if (molesState[randMole] == 0) {
+    switch(molesPos[randMole]){
+      case -1: //mole is in the hole, go up
+        moveMole(randMole, 1);
+        break;
+      case 1: //mole is up, go down
+        moveMole(randMole, -1);
+        break;
+    }
+
+  }
+
+  //check what moles were already moving in last frame and reschedule their movement in this frame
+  molesState.forEach((state, id) => {
+    if (state != 0) {
+      switch(state){
+        case 1: //mole is going up
+          moveMole(id, 1);
+          break;
+        case -1: //mole is going down
+          moveMole(id, -1);
+          break;
+      }
+
+  }
+  });
+
+}
+
+var lastMolesTime = [null, null, null, null, null];
+var molesDy = [0, 0, 0, 0, 0];
+
+function moveMole(id, upDown){
+  var currentTime = (new Date).getTime();
+  let dt;
+  let dy;
+
+  if (lastMolesTime[id]) {
+    dt = (currentTime - lastMolesTime[id]);
+  } else {
+    dt = 1 / 50;
+  }
+
+  dy = dt/80.0*0.6;
+
+  molesDy[id] += dy;
+
+  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, 0.0 + dy*upDown, 0.0));
+
+  lastMolesTime[id] = currentTime; //Need to update it for the next frame
+
+  if (molesDy[id] >= 0.6) {
+    dy = 0;
+    molesDy[id] = 0;
+    molesPos[id] = upDown;
+    molesState[id] = 0;
+    
+    if(upDown == 1){//mole is up, reset local matrix to be up
+
+      objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+        settings.molesStartingPositions[id][0],
+        settings.molesStartingPositions[id][1]+0.6,
+        settings.molesStartingPositions[id][2]
+      )
+
+    }
+      //mole is down, reset local matrix to be down
+    else objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+      settings.molesStartingPositions[id][0],
+      settings.molesStartingPositions[id][1],
+      settings.molesStartingPositions[id][2]
+    )
+
+    return;
+  }
+
+  molesState[id] = upDown;
+}
+
 
 //draws the scene
 function drawScene() {
-  // animate()
+  
+  animate();
+
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
