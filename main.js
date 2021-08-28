@@ -1,6 +1,10 @@
 var canvas;
 var gl = null,
   program = null;
+ 
+
+
+
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -13,7 +17,7 @@ var settings = {
     
     /** camera parameters */
     cameraGamePosition: [0.0, 7.0, 4.0], 
-    cameraPosition: [0.0, 10.0, 20.0],
+    cameraPosition: [100.0, 600.0, 800.0],
     target: [0.0, 0.8 * 2.5, 0.0], //2.5 is te scale factor 
     //the target is not the origin but the point of the cabinet where the moles jump. 
     up: [0.0, 1.0, 0.0],
@@ -59,11 +63,13 @@ var bufferInfos = [];
 //Stores all the objects from the scene graph
 var objects;
 
-//Texture
-var texture;
+//Textures
+var texture; 
+var skyboxTexture;
 
 //TWGL program information
-var programInfo;
+var programInfo,
+    skyboxInfo;
 
 //uniforms definition, according to TWGL
 const uniforms = {
@@ -78,6 +84,13 @@ const uniforms = {
   LADir: [],
   LAlightColor: []
 };
+
+/** SKYBOX SHADER */
+const uniformsSkybox = {
+  u_texture: [],
+  inverseViewProjMatrix: []
+};
+var bufferInfoEnv;
 
 //Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
 async function loadMeshes(){
@@ -106,6 +119,22 @@ function createBuffersInfo(gl){
   ); 
 }
 
+function createEnvironmentBuffer(gl){
+  var skyboxVertPos = new Float32Array(
+    [
+      -10, -10, 1.0,
+      10, -10, 1.0,
+      -10, 10, 1.0,
+      -10, 10, 1.0,
+      10, -10, 1.0,
+      10, 10, 1.0,
+    ]);
+
+  bufferInfoEnv = twgl.createBufferInfoFromArrays(gl, {in_position: skyboxVertPos});
+
+}
+
+
 //Async function that initialize WebGL and then starts the main program
 async function initWebGl(){
   // Get a WebGL context
@@ -116,6 +145,7 @@ async function initWebGl(){
     return;
   }
   utils.resizeCanvasToDisplaySize(gl.canvas);
+
 
   //Loads meshes from assets
   await loadMeshes();
@@ -134,20 +164,45 @@ async function initWebGl(){
     }
   );
 
+     //creates GL program
+  await utils.loadFiles(['Shaders/env-vs.glsl','Shaders/env-fs.glsl'], function(shader){
+    skyboxInfo = twgl.createProgramInfo(gl, shader);
+    }
+  );
+
   //loads objects texture (only 1 for all 3 objects)
   texture = twgl.createTexture(gl, {src: "Assets/Mole.png"});
 
+  // loads environment texture
+  envTextures = twgl.createTexture(gl, 
+    {
+     target: gl.TEXTURE_CUBE_MAP,
+     src: [
+       'Assets/Images/x_pos.png',
+       'Assets/Images/x_neg.png',
+       'Assets/Images/y_pos.png',
+       'Assets/Images/y_neg.png',
+       'Assets/Images/z_pos.png',
+       'Assets/Images/z_neg.png',
+     ]
+   }
+ );
+
   //creating an array containing all buffers information
   createBuffersInfo(gl);
+
+  //creating a buffer info for environment
+  createEnvironmentBuffer(gl)
   
   //initialization ended. Go to the main program
   main();
 }
 
+
 //sceneGraph definition (also blatantly copied from the the other guys whac-a-mole. WE HAVE TO REWRITE THIS!)
 function defineSceneGraph() {
   var cabinetSpace = new Node();
-  cabinetSpace.localMatrix = utils.MakeWorld(0, 0, 0, 0, 0, 0, settings.scaleFactor);
+  cabinetSpace.localMatrix = utils.MakeWorld(0, 1, 0, 0, 0, 0, settings.scaleFactor);
 
   var moleSpace = new Node();
   moleSpace.localMatrix = utils.MakeTranslateMatrix(settings.moleSpacePosition[0], settings.moleSpacePosition[1], settings.moleSpacePosition[2]);
@@ -320,8 +375,6 @@ function drawScene() {
 
   root.updateWorldMatrix();
 
-  
-
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
@@ -360,15 +413,50 @@ function drawScene() {
   window.requestAnimationFrame(drawScene);
 }
 
+function drawSkybox() {
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.useProgram(skyboxInfo.program);
+
+  var cameraMatrix = utils.LookAt(settings.cameraPosition, settings.target, settings.up);
+  var viewMatrix = utils.invertMatrix(cameraMatrix);
+  var projectionMatrixx = utils.MakePerspective(settings.fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
+  var viewProjMat = utils.multiplyMatrices(projectionMatrixx, viewMatrix);
+  var inverseViewProjMatrix = utils.invertMatrix(viewProjMat);
+
+
+  //populating uniform object
+  uniformsSkybox.u_texture = envTextures;
+  uniformsSkybox.inverseViewProjMatrix = utils.transposeMatrix(inverseViewProjMatrix);
+
+  twgl.setBuffersAndAttributes(gl, skyboxInfo, bufferInfoEnv);
+  twgl.setUniforms(skyboxInfo, uniformsSkybox);
+  twgl.drawBufferInfo(gl, bufferInfoEnv);
+  // specifying the depth comparison function, which sets the conditions under which the pixel will be drawn. 
+  // lequal - (pass if the incoming value is less than or equal to the depth buffer value)
+  gl.depthFunc(gl.LEQUAL); 
+
+  // Draw the geometry.
+  gl.drawArrays(gl.TRIANGLES, 0, 1 * 6);
+
+  //continuously recalls himself
+  window.requestAnimationFrame(drawSkybox);
+}
+
+
+
 function main() {
   
   //creating perspective matrix
   perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
-  
+
+
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
 
   drawScene();
+  drawSkybox()
 }
 
 window.onload = initWebGl;
