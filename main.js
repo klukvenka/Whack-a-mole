@@ -1,10 +1,8 @@
 var canvas;
 var gl = null,
   program = null;
- 
 
-
-
+var lookRadius = 6;
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -17,7 +15,7 @@ var settings = {
     
     /** camera parameters */
     cameraGamePosition: [0.0, 7.0, 4.0], 
-    cameraPosition: [100.0, 600.0, 800.0],
+    cameraPosition: [0.0, 0.0, 0.0],
     target: [0.0, 0.8 * 2.5, 0.0], //2.5 is te scale factor 
     //the target is not the origin but the point of the cabinet where the moles jump. 
     up: [0.0, 1.0, 0.0],
@@ -65,11 +63,11 @@ var objects;
 
 //Textures
 var texture; 
-var skyboxTexture;
+var envTexture;
 
 //TWGL program information
 var programInfo,
-    skyboxInfo;
+    envInfo;
 
 //uniforms definition, according to TWGL
 const uniforms = {
@@ -85,12 +83,47 @@ const uniforms = {
   LAlightColor: []
 };
 
-/** SKYBOX SHADER */
-const uniformsSkybox = {
-  u_texture: [],
-  inverseViewProjMatrix: []
+// uniforms for environment (skybox)
+const uniformsEnv = {
+  u_env: [],
+  u_viewDirectionProjectionInverse: []
 };
 var bufferInfoEnv;
+
+
+
+// event handler
+var mouseState = false;
+var lastMouseX = -100, lastMouseY = -100;
+function doMouseDown(event) {
+	lastMouseX = event.pageX;
+	lastMouseY = event.pageY;
+	mouseState = true;
+}
+function doMouseUp(event) {
+	lastMouseX = -100;
+	lastMouseY = -100;
+	mouseState = false;
+}
+function doMouseMove(event) {
+	if(mouseState) {
+		var dx = event.pageX - lastMouseX;
+		var dy = lastMouseY - event.pageY;
+		lastMouseX = event.pageX;
+		lastMouseY = event.pageY;
+		
+		if((dx != 0) || (dy != 0)) {
+			angle = angle + 0.25 * dx;
+			elevation = elevation + 0.25 * dy;
+		}
+	}
+}
+function doMouseWheel(event) {
+	var nLookRadius = lookRadius + event.wheelDelta/1000.0;
+	if((nLookRadius > 2.0) && (nLookRadius < 20.0)) {
+		lookRadius = nLookRadius;
+	}
+}
 
 //Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
 async function loadMeshes(){
@@ -120,7 +153,7 @@ function createBuffersInfo(gl){
 }
 
 function createEnvironmentBuffer(gl){
-  var skyboxVertPos = new Float32Array(
+  var envVertPos = new Float32Array(
     [
       -10, -10, 1.0,
       10, -10, 1.0,
@@ -130,7 +163,7 @@ function createEnvironmentBuffer(gl){
       10, 10, 1.0,
     ]);
 
-  bufferInfoEnv = twgl.createBufferInfoFromArrays(gl, {in_position: skyboxVertPos});
+  bufferInfoEnv = twgl.createBufferInfoFromArrays(gl, {a_position: envVertPos});
 
 }
 
@@ -166,7 +199,7 @@ async function initWebGl(){
 
      //creates GL program
   await utils.loadFiles(['Shaders/env-vs.glsl','Shaders/env-fs.glsl'], function(shader){
-    skyboxInfo = twgl.createProgramInfo(gl, shader);
+    envInfo = twgl.createProgramInfo(gl, shader);
     }
   );
 
@@ -373,13 +406,18 @@ function drawScene() {
   gl.enable(gl.CULL_FACE);
   gl.useProgram(programInfo.program);
 
+  // update WV matrix
+  cz = lookRadius * Math.cos(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cy = lookRadius * Math.sin(utils.degToRad(-elevation));
+
   root.updateWorldMatrix();
 
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
   // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
+  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);
 
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
@@ -413,25 +451,30 @@ function drawScene() {
   window.requestAnimationFrame(drawScene);
 }
 
-function drawSkybox() {
+function drawEnv() {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
-  gl.useProgram(skyboxInfo.program);
+  gl.useProgram(envInfo.program);
 
-  var cameraMatrix = utils.LookAt(settings.cameraPosition, settings.target, settings.up);
-  var viewMatrix = utils.invertMatrix(cameraMatrix);
+  // update WV matrix
+  cz = lookRadius * Math.cos(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cy = lookRadius * Math.sin(utils.degToRad(-elevation));
+
+  var	viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);		
+
+  //var viewMatrix = utils.invertMatrix(cameraMatrix);
   var projectionMatrixx = utils.MakePerspective(settings.fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
   var viewProjMat = utils.multiplyMatrices(projectionMatrixx, viewMatrix);
   var inverseViewProjMatrix = utils.invertMatrix(viewProjMat);
 
-
   //populating uniform object
-  uniformsSkybox.u_texture = envTextures;
-  uniformsSkybox.inverseViewProjMatrix = utils.transposeMatrix(inverseViewProjMatrix);
+  uniformsEnv.u_env = envTextures;
+  uniformsEnv.u_viewDirectionProjectionInverse = utils.transposeMatrix(inverseViewProjMatrix);
 
-  twgl.setBuffersAndAttributes(gl, skyboxInfo, bufferInfoEnv);
-  twgl.setUniforms(skyboxInfo, uniformsSkybox);
+  twgl.setBuffersAndAttributes(gl, envInfo, bufferInfoEnv);
+  twgl.setUniforms(envInfo, uniformsEnv);
   twgl.drawBufferInfo(gl, bufferInfoEnv);
   // specifying the depth comparison function, which sets the conditions under which the pixel will be drawn. 
   // lequal - (pass if the incoming value is less than or equal to the depth buffer value)
@@ -441,12 +484,17 @@ function drawSkybox() {
   gl.drawArrays(gl.TRIANGLES, 0, 1 * 6);
 
   //continuously recalls himself
-  window.requestAnimationFrame(drawSkybox);
+  window.requestAnimationFrame(drawEnv);
 }
 
 
 
 function main() {
+
+  canvas.addEventListener("mousedown", doMouseDown, false);
+	canvas.addEventListener("mouseup", doMouseUp, false);
+	canvas.addEventListener("mousemove", doMouseMove, false);
+	canvas.addEventListener("mousewheel", doMouseWheel, false);
   
   //creating perspective matrix
   perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
@@ -456,7 +504,7 @@ function main() {
   root = defineSceneGraph();
 
   drawScene();
-  drawSkybox()
+  drawEnv()
 }
 
 window.onload = initWebGl;

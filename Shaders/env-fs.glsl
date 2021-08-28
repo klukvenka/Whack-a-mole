@@ -1,18 +1,16 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
 
-in vec3 sampleDir;
- 
-uniform samplerCube u_texture;
-uniform mat4 inverseViewProjMatrix;
+uniform samplerCube u_skybox;
+uniform mat4 u_viewDirectionProjectionInverse;
 
+in vec4 v_position;
+
+// we need to declare an output for the fragment shader
 out vec4 outColor;
- 
+
 void main() {
-    vec4 p = inverseViewProjMatrix*vec4(sampleDir, 1.0);
-    
-    vec4 rgba = texture(u_texture, normalize(p.xyz / p.w));
-    
-    outColor = vec4(rgba.rgb, 1.0);
+  vec4 t = u_viewDirectionProjectionInverse * v_position;
+  outColor = texture(u_skybox, normalize(t.xyz / t.w));
 }

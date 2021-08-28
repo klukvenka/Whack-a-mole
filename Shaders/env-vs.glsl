@@ -1,15 +1,9 @@
 #version 300 es
 
-in vec3 in_position;
-     
-out vec3 sampleDir;
-     
+in vec4 a_position;
+out vec4 v_position;
 void main() {
-  // Multiply the position by the matrix.
-  gl_Position = vec4(in_position,1.0);
- 
-  // Pass a normal. Since the positions are
-  // centered around the origin we can just 
-  // pass the position
-  sampleDir = in_position;
+  v_position = a_position;
+  gl_Position = a_position;
+  gl_Position.z = 1.0;
 }
