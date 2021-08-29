@@ -2,6 +2,9 @@ var canvas;
 var gl = null,
   program = null;
 
+var lookRadius = 7;
+var fieldOfView = 120;
+
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
     /** directories */
@@ -13,7 +16,7 @@ var settings = {
     
     /** camera parameters */
     cameraGamePosition: [0.0, 7.0, 4.0], 
-    cameraPosition: [0.0, 10.0, 20.0],
+    cameraPosition: [0.0, 0.0, 0.0],
     target: [0.0, 0.8 * 2.5, 0.0], //2.5 is te scale factor 
     //the target is not the origin but the point of the cabinet where the moles jump. 
     up: [0.0, 1.0, 0.0],
@@ -60,11 +63,13 @@ var bufferInfos = [];
 //Stores all the objects from the scene graph
 var objects;
 
-//Texture
-var texture;
+//Textures
+var texture; 
+var envTexture;
 
 //TWGL program information
-var programInfo;
+var programInfo,
+    envInfo;
 
 //uniforms definition, according to TWGL
 const uniforms = {
@@ -79,6 +84,48 @@ const uniforms = {
   LADir: [],
   LAlightColor: []
 };
+
+// uniforms for environment (skybox)
+const uniformsEnv = {
+  u_env: [],
+  u_viewDirectionProjectionInverse: []
+};
+var bufferInfoEnv;
+
+
+
+// event handler
+var mouseState = false;
+var lastMouseX = -100, lastMouseY = -100;
+function doMouseDown(event) {
+	lastMouseX = event.pageX;
+	lastMouseY = event.pageY;
+	mouseState = true;
+}
+function doMouseUp(event) {
+	lastMouseX = -100;
+	lastMouseY = -100;
+	mouseState = false;
+}
+function doMouseMove(event) {
+	if(mouseState) {
+		var dx = event.pageX - lastMouseX;
+		var dy = lastMouseY - event.pageY;
+		lastMouseX = event.pageX;
+		lastMouseY = event.pageY;
+		
+		if((dx != 0) || (dy != 0)) {
+			angle = angle + 0.25 * dx;
+			elevation = elevation + 0.25 * dy;
+		}
+	}
+}
+function doMouseWheel(event) {
+	var nLookRadius = lookRadius + event.wheelDelta/1000.0;
+	if((nLookRadius > 2.0) && (nLookRadius < 20.0)) {
+		lookRadius = nLookRadius;
+	}
+}
 
 //Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
 async function loadMeshes(){
@@ -107,6 +154,22 @@ function createBuffersInfo(gl){
   ); 
 }
 
+function createEnvironmentBuffer(gl){
+  var envVertPos = new Float32Array(
+    [
+      -10, -10, 1.0,
+      10, -10, 1.0,
+      -10, 10, 1.0,
+      -10, 10, 1.0,
+      10, -10, 1.0,
+      10, 10, 1.0,
+    ]);
+
+  bufferInfoEnv = twgl.createBufferInfoFromArrays(gl, {a_position: envVertPos});
+
+}
+
+
 //Async function that initialize WebGL and then starts the main program
 async function initWebGl(){
   // Get a WebGL context
@@ -117,6 +180,7 @@ async function initWebGl(){
     return;
   }
   utils.resizeCanvasToDisplaySize(gl.canvas);
+
 
   //Loads meshes from assets
   await loadMeshes();
@@ -135,15 +199,40 @@ async function initWebGl(){
     }
   );
 
+     //creates GL program
+  await utils.loadFiles(['Shaders/env-vs.glsl','Shaders/env-fs.glsl'], function(shader){
+    envInfo = twgl.createProgramInfo(gl, shader);
+    }
+  );
+
   //loads objects texture (only 1 for all 3 objects)
   texture = twgl.createTexture(gl, {src: "Assets/Mole.png"});
 
+  // loads environment texture
+  envTextures = twgl.createTexture(gl, 
+    {
+     target: gl.TEXTURE_CUBE_MAP,
+     src: [
+       'Assets/Images/x_pos.png',
+       'Assets/Images/x_neg.png',
+       'Assets/Images/y_pos.png',
+       'Assets/Images/y_neg.png',
+       'Assets/Images/z_pos.png',
+       'Assets/Images/z_neg.png',
+     ]
+   }
+ );
+
   //creating an array containing all buffers information
   createBuffersInfo(gl);
+
+  //creating a buffer info for environment
+  createEnvironmentBuffer(gl)
   
   //initialization ended. Go to the main program
   main();
 }
+
 
 //sceneGraph definition (also blatantly copied from the the other guys whac-a-mole. WE HAVE TO REWRITE THIS!)
 function defineSceneGraph() {
@@ -514,16 +603,19 @@ function drawScene() {
   gl.enable(gl.CULL_FACE);
   gl.useProgram(programInfo.program);
 
-  root.updateWorldMatrix();
+  // update WV matrix
+  cz = lookRadius * Math.cos(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cy = lookRadius * Math.sin(utils.degToRad(-elevation));
 
-  
+  root.updateWorldMatrix();
 
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
   // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
-
+  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);
+  perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0);
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
 
@@ -556,15 +648,58 @@ function drawScene() {
   window.requestAnimationFrame(drawScene);
 }
 
+function drawEnv() {
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
+  gl.useProgram(envInfo.program);
+
+  // update WV matrix
+  cz = lookRadius * Math.cos(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
+  cy = lookRadius * Math.sin(utils.degToRad(-elevation));
+
+  var	viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);		
+
+  //var viewMatrix = utils.invertMatrix(cameraMatrix);
+  var projectionMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
+  var viewProjMat = utils.multiplyMatrices(projectionMatrix, viewMatrix);
+  var inverseViewProjMatrix = utils.invertMatrix(viewProjMat);
+
+  //populating uniform object
+  uniformsEnv.u_env = envTextures;
+  uniformsEnv.u_viewDirectionProjectionInverse = utils.transposeMatrix(inverseViewProjMatrix);
+
+  twgl.setBuffersAndAttributes(gl, envInfo, bufferInfoEnv);
+  twgl.setUniforms(envInfo, uniformsEnv);
+  twgl.drawBufferInfo(gl, bufferInfoEnv);
+  // specifying the depth comparison function, which sets the conditions under which the pixel will be drawn. 
+  // lequal - (pass if the incoming value is less than or equal to the depth buffer value)
+  gl.depthFunc(gl.LEQUAL); 
+
+  // Draw the geometry.
+  gl.drawArrays(gl.TRIANGLES, 0, 1 * 6);
+
+  //continuously recalls himself
+  window.requestAnimationFrame(drawEnv);
+}
+
 function main() {
+
+  canvas.addEventListener("mousedown", doMouseDown, false);
+	canvas.addEventListener("mouseup", doMouseUp, false);
+	canvas.addEventListener("mousemove", doMouseMove, false);
+	canvas.addEventListener("mousewheel", doMouseWheel, false);
   
   //creating perspective matrix
-  perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
-  
+  //
+
+
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
 
   drawScene();
+  drawEnv()
 }
 
 window.onload = initWebGl;
