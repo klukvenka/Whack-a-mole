@@ -2,8 +2,8 @@ var canvas;
 var gl = null,
   program = null;
 
-var lookRadius = 7;
-var fieldOfView = 120;
+var lookRadius = 15;
+var fieldOfView = 60;
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -24,7 +24,7 @@ var settings = {
 
     /** object positions */
     moleSpacePosition: [0, 1.1, 0.2],
-    hammerStartingPosition: [0, 2, 1.3],
+    hammerStartingPosition: [0, 1.4, 1.8],
     // hammerStartingPosition: [-1.5, 1.4, 1.3],
     molesStartingPositions: [
         [-0.63523, -0.6, 0],
@@ -48,7 +48,7 @@ var lastUpdateTime = (new Date).getTime();
 var cx = 0.0;
 var cy = 6.0;
 var cz = 7.5;
-var elevation = 10.0;
+var elevation = -30.0;
 var angle = 0.0;
 
 var delta = 0.1;
@@ -614,8 +614,8 @@ function drawScene() {
   objects.forEach(function (object) {
   //creating projection matrix
   // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);
-  perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0);
+  var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
+  perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
 
@@ -659,7 +659,7 @@ function drawEnv() {
   cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
   cy = lookRadius * Math.sin(utils.degToRad(-elevation));
 
-  var	viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);		
+  var	viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);		
 
   //var viewMatrix = utils.invertMatrix(cameraMatrix);
   var projectionMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
