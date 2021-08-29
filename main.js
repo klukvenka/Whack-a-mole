@@ -2,7 +2,8 @@ var canvas;
 var gl = null,
   program = null;
 
-var lookRadius = 6;
+var lookRadius = 7;
+var fieldOfView = 120;
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -235,7 +236,7 @@ async function initWebGl(){
 //sceneGraph definition (also blatantly copied from the the other guys whac-a-mole. WE HAVE TO REWRITE THIS!)
 function defineSceneGraph() {
   var cabinetSpace = new Node();
-  cabinetSpace.localMatrix = utils.MakeWorld(0, 1, 0, 0, 0, 0, settings.scaleFactor);
+  cabinetSpace.localMatrix = utils.MakeWorld(0, 0, 0, 0, 0, 0, settings.scaleFactor);
 
   var moleSpace = new Node();
   moleSpace.localMatrix = utils.MakeTranslateMatrix(settings.moleSpacePosition[0], settings.moleSpacePosition[1], settings.moleSpacePosition[2]);
@@ -418,7 +419,7 @@ function drawScene() {
   //creating projection matrix
   // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);
-
+  perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0);
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
 
@@ -465,8 +466,8 @@ function drawEnv() {
   var	viewMatrix = utils.MakeView(cx, cy, cz, elevation, -angle);		
 
   //var viewMatrix = utils.invertMatrix(cameraMatrix);
-  var projectionMatrixx = utils.MakePerspective(settings.fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
-  var viewProjMat = utils.multiplyMatrices(projectionMatrixx, viewMatrix);
+  var projectionMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 1.0, 2000.0); // fow, aspect, near, far
+  var viewProjMat = utils.multiplyMatrices(projectionMatrix, viewMatrix);
   var inverseViewProjMatrix = utils.invertMatrix(viewProjMat);
 
   //populating uniform object
@@ -487,8 +488,6 @@ function drawEnv() {
   window.requestAnimationFrame(drawEnv);
 }
 
-
-
 function main() {
 
   canvas.addEventListener("mousedown", doMouseDown, false);
@@ -497,7 +496,7 @@ function main() {
 	canvas.addEventListener("mousewheel", doMouseWheel, false);
   
   //creating perspective matrix
-  perspectiveMatrix = utils.MakePerspective(90, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
+  //
 
 
   //creates sceneGraph, stores root node in "root"
