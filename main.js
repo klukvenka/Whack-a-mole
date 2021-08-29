@@ -21,7 +21,8 @@ var settings = {
 
     /** object positions */
     moleSpacePosition: [0, 1.1, 0.2],
-    hammerStartingPosition: [-1.5, 1.4, 1.3],
+    hammerStartingPosition: [0, 1.4, 1.3],
+    // hammerStartingPosition: [-1.5, 1.4, 1.3],
     molesStartingPositions: [
         [-0.63523, -0.6, 0],
         [0, -0.6, 0],
@@ -351,7 +352,7 @@ function moveMole(id, upDown) {
     dt = 1 / 50;
   }
 
-  dy = dt/80.0*0.6;
+  dy = dt/400.0*0.6;
 
   molesDy[id] += dy;
 
@@ -391,16 +392,15 @@ function moveMole(id, upDown) {
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
-var dxdz = [0, 0];//distance traveled by hammer on both axis
+var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis
 
 $(document).on('keypress', function(e){
-  
   key = String.fromCharCode(e.which);
   
   if ((key == 'q' || key == 'w' || key == 'e' || key == 'a' || key == 's') && hammerAnimFinished) {
     switch(key){
       case 'q':
-        targetHole = 0;
+        targetHole = 2;
         hammerAnimFinished = false;
         break;
       
@@ -410,17 +410,17 @@ $(document).on('keypress', function(e){
         break;
       
       case 'e':
-        targetHole = 2;
+        targetHole = 0;
         hammerAnimFinished = false;
         break;
 
       case 'a':
-        targetHole = 3;
+        targetHole = 4;
         hammerAnimFinished = false;
         break;
 
       case 's':
-        targetHole = 4;
+        targetHole = 3;
         hammerAnimFinished = false;
         break;
     }
@@ -444,20 +444,39 @@ function animateHammer() {
   }
   lastHammerUpdateTime = currentTime;
 
-  let distanceX = Math.abs(settings.hammerStartingPosition[0]-settings.molesStartingPositions[targetHole][0]);
-  let distanceZ = Math.abs(settings.hammerStartingPosition[2]-settings.molesStartingPositions[targetHole][2]);
+  let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
+  let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
+  
+  let rot = dt/400.0*45;
+  dx = dt/400.0*distanceX; 
+  dz = dt/400.0*distanceZ;
 
-  dx = dt/80.0*distanceX; 
-  dz = dt/80.0*distanceZ;
+  dxdzdrot[0] += Math.abs(dx);
+  dxdzdrot[1] += Math.abs(dz);
+  dxdzdrot[2] += rot;
 
-  dxdz[0] += dx;
-  dxdz[1] += dz;
+  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
+  
+  console.log(roty);
 
-  objects[1].localMatrix = utils.multiplyMatrices(objects[1].localMatrix, utils.MakeTranslateMatrix(0.0+dx, 0.0, 0.0-dz));
+  //make a rotation about the y axis centered on the handle of the hammer  
+  rotmat = utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(
+    utils.MakeRotateYMatrix(-180+roty),
+    utils.MakeTranslateMatrix(0, -1.5, 0.0)), 
+    utils.MakeRotateXMatrix(rot)),
+    utils.MakeTranslateMatrix(0, 1.5, 0.0)),
+    utils.invertMatrix(utils.MakeRotateYMatrix(-180+roty))
+  );
 
-  if (dxdz[0] >= Math.abs(distanceX) && dxdz[1] >= distanceZ){  
-    dxdz[0] = 0;
-    dxdz[1] = 0;
+  objects[1].localMatrix = utils.multiplyMatrices(utils.multiplyMatrices(
+    objects[1].localMatrix,
+    rotmat),
+    utils.MakeTranslateMatrix(dx, 0.0, -dz)
+    );
+
+  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 45){  
+    dxdzdrot = [0, 0, 0];
+
     objects[1].localMatrix = utils.MakeWorld(
       settings.hammerStartingPosition[0],
       settings.hammerStartingPosition[1],
