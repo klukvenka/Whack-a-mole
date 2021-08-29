@@ -444,29 +444,29 @@ function animateHammer() {
   }
   lastHammerUpdateTime = currentTime;
 
-  let distanceX = settings.hammerStartingPosition[0]-settings.molesStartingPositions[targetHole][0];
-  let distanceZ = settings.hammerStartingPosition[2]-settings.molesStartingPositions[targetHole][2];
+  let distanceX = Math.abs(settings.hammerStartingPosition[0]-settings.molesStartingPositions[targetHole][0]);
+  let distanceZ = Math.abs(settings.hammerStartingPosition[2]-settings.molesStartingPositions[targetHole][2]);
 
-  dx = dt/80.0*(distanceX); 
-  dz = dt/80.0*(distanceZ);
+  dx = dt/80.0*distanceX; 
+  dz = dt/80.0*distanceZ;
 
-  dxdz[0] += Math.abs(dx);
+  dxdz[0] += dx;
   dxdz[1] += dz;
 
-  console.log(dxdz);
+  objects[1].localMatrix = utils.multiplyMatrices(objects[1].localMatrix, utils.MakeTranslateMatrix(0.0+dx, 0.0, 0.0-dz));
 
-  objects[1].localMatrix = utils.multiplyMatrices(objects[1].localMatrix, utils.MakeTranslateMatrix(0.0-dx, 0.0, 0.0+dz));
-
-  if (dxdz[0] >= Math.abs(distanceX) && dxdz[1] >= distanceZ){
-    
+  if (dxdz[0] >= Math.abs(distanceX) && dxdz[1] >= distanceZ){  
     dxdz[0] = 0;
     dxdz[1] = 0;
-    objects[1].localMatrix = utils.MakeTranslateMatrix(
+    objects[1].localMatrix = utils.MakeWorld(
       settings.hammerStartingPosition[0],
       settings.hammerStartingPosition[1],
-      settings.hammerStartingPosition[2]
+      settings.hammerStartingPosition[2],
+      0, 0, 0, 0.6
     )
     hammerAnimFinished = true;
+    lastHammerUpdateTime = 0;
+    return;
   }
 
 
@@ -485,6 +485,8 @@ function animate() {
 function drawScene() {
   
   animate();
+
+  // console.log(hammerAnimFinished);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
