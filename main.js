@@ -21,7 +21,7 @@ var settings = {
 
     /** object positions */
     moleSpacePosition: [0, 1.1, 0.2],
-    hammerStartingPosition: [0, 1.4, 1.3],
+    hammerStartingPosition: [0, 2, 1.3],
     // hammerStartingPosition: [-1.5, 1.4, 1.3],
     molesStartingPositions: [
         [-0.63523, -0.6, 0],
@@ -43,9 +43,9 @@ var lastUpdateTime = (new Date).getTime();
 
 //Camera parameters
 var cx = 0.0;
-var cy = 3.0;
+var cy = 6.0;
 var cz = 7.5;
-var elevation = 0.0;
+var elevation = 10.0;
 var angle = 0.0;
 
 var delta = 0.1;
@@ -447,9 +447,9 @@ function animateHammer() {
   let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
   let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
   
-  let rot = dt/400.0*45;
-  dx = dt/400.0*distanceX; 
-  dz = dt/400.0*distanceZ;
+  let rot = dt/120.0*45;
+  dx = dt/120.0*distanceX; 
+  dz = dt/120.0*distanceZ;
 
   dxdzdrot[0] += Math.abs(dx);
   dxdzdrot[1] += Math.abs(dz);
