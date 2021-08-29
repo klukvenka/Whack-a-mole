@@ -21,13 +21,14 @@ var settings = {
 
     /** object positions */
     moleSpacePosition: [0, 1.1, 0.2],
-    hammerStartingPosition: [-1.5, 1.4, 1.3],
+    hammerStartingPosition: [0, 2, 1.3],
+    // hammerStartingPosition: [-1.5, 1.4, 1.3],
     molesStartingPositions: [
-        [-0.63523, 0, 0],
-        [0, 0, 0],
-        [0.6353, 0, 0],
-        [-0.31763, -0.1, 0.4429],
-        [0.31763, -0.1, 0.4429]
+        [-0.63523, -0.6, 0],
+        [0, -0.6, 0],
+        [0.6353, -0.6, 0],
+        [-0.31763, -0.7, 0.4429],
+        [0.31763, -0.7, 0.4429]
     ],
 
 }
@@ -41,10 +42,10 @@ var projectionMatrix,
 var lastUpdateTime = (new Date).getTime();
 
 //Camera parameters
-var cx = 0;
-var cy = 3.0;
+var cx = 0.0;
+var cy = 6.0;
 var cz = 7.5;
-var elevation = 0.0;
+var elevation = 10.0;
 var angle = 0.0;
 
 var delta = 0.1;
@@ -294,23 +295,218 @@ function defineSceneGraph() {
   return cabinetSpace;
 }
 
-// function animate() {
-//   var currentTime = (new Date).getTime();
-//   if (lastUpdateTime) {
-//     //currentTime – lastUpdateTime is the time passed between frames
-//     var deltaC = (3 * (currentTime - lastUpdateTime)) / 1000.0;
-//     if (flag == 0) cubeTx += deltaC;
-//     else cubeTx -= deltaC;
-//     if (cubeTx >= 1.5) flag = 1;
-//     else if (cubeTx <= -1.5) flag = 0;
-//   }
-//   worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
-//   lastUpdateTime = currentTime; //Need to update it for the next frame
-// }
+//MOLES ANIMATION
+var molesState = [0, 0, 0, 0, 0];//1 moving up, -1 moving down, 0 still
+// var animFinished = [false, false, false, false, false];
+var molesPos = [-1, -1, -1, -1, -1];//1 up, -1 down
+
+//only for test purposes
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+var lastMolesTime = [null, null, null, null, null];
+var molesDy = [0, 0, 0, 0, 0];
+
+function animateMoles(){
+  
+  let randMole = getRandomInt(5);
+
+  //if mole is still (either up or down) start movement
+  if (molesState[randMole] == 0) {
+    switch(molesPos[randMole]){
+      case -1: //mole is in the hole, go up
+        moveMole(randMole, 1);
+        break;
+      case 1: //mole is up, go down
+        moveMole(randMole, -1);
+        break;
+    }
+
+  }
+
+  //check what moles were already moving in last frame and reschedule their movement in this frame
+  molesState.forEach((state, id) => {
+    if (state != 0) {
+      switch(state){
+        case 1: //mole is going up
+          moveMole(id, 1);
+          break;
+        case -1: //mole is going down
+          moveMole(id, -1);
+          break;
+      }
+
+  }
+  });
+}
+
+function moveMole(id, upDown) {
+  var currentTime = (new Date).getTime();
+  let dt;
+  let dy;
+
+  if (lastMolesTime[id]) {
+    dt = (currentTime - lastMolesTime[id]);
+  } else {
+    dt = 1 / 50;
+  }
+
+  dy = dt/400.0*0.6;
+
+  molesDy[id] += dy;
+
+  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, 0.0 + dy*upDown, 0.0));
+
+  lastMolesTime[id] = currentTime; //Need to update it for the next frame
+
+  if (molesDy[id] >= 0.6) {
+    dy = 0;
+    molesDy[id] = 0;
+    molesPos[id] = upDown;
+    molesState[id] = 0;
+    
+    if(upDown == 1){//mole is up, reset local matrix to be up
+
+      objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+        settings.molesStartingPositions[id][0],
+        settings.molesStartingPositions[id][1]+0.6,
+        settings.molesStartingPositions[id][2]
+      )
+
+    }
+      //mole is down, reset local matrix to be down
+    else objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+      settings.molesStartingPositions[id][0],
+      settings.molesStartingPositions[id][1],
+      settings.molesStartingPositions[id][2]
+    )
+
+    return;
+  }
+
+  molesState[id] = upDown;
+}
+
+//HAMMER ANIMATION
+var hammerAnimFinished = true;
+var lastHammerUpdateTime = null;
+var targetHole; //targeted hole
+var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis
+
+$(document).on('keypress', function(e){
+  key = String.fromCharCode(e.which);
+  
+  if ((key == 'q' || key == 'w' || key == 'e' || key == 'a' || key == 's') && hammerAnimFinished) {
+    switch(key){
+      case 'q':
+        targetHole = 2;
+        hammerAnimFinished = false;
+        break;
+      
+      case 'w':
+        targetHole = 1;
+        hammerAnimFinished = false;
+        break;
+      
+      case 'e':
+        targetHole = 0;
+        hammerAnimFinished = false;
+        break;
+
+      case 'a':
+        targetHole = 4;
+        hammerAnimFinished = false;
+        break;
+
+      case 's':
+        targetHole = 3;
+        hammerAnimFinished = false;
+        break;
+    }
+  }
+} 
+);
+
+function animateHammer() {
+  if (hammerAnimFinished) return;
+
+  // let hammer = objects[1];
+  // if (!positionBeforeAnim)
+  //   positionBeforeAnim = hammer.localMatrix
+
+  var currentTime = (new Date).getTime();
+  let dt;
+  if (lastHammerUpdateTime) {
+    dt = (currentTime - lastHammerUpdateTime);
+  } else {
+    dt = 1 / 50;
+  }
+  lastHammerUpdateTime = currentTime;
+
+  let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
+  let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
+  
+  let rot = dt/120.0*45;
+  dx = dt/120.0*distanceX; 
+  dz = dt/120.0*distanceZ;
+
+  dxdzdrot[0] += Math.abs(dx);
+  dxdzdrot[1] += Math.abs(dz);
+  dxdzdrot[2] += rot;
+
+  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
+  
+  console.log(roty);
+
+  //make a rotation about the y axis centered on the handle of the hammer  
+  rotmat = utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(
+    utils.MakeRotateYMatrix(-180+roty),
+    utils.MakeTranslateMatrix(0, -1.5, 0.0)), 
+    utils.MakeRotateXMatrix(rot)),
+    utils.MakeTranslateMatrix(0, 1.5, 0.0)),
+    utils.invertMatrix(utils.MakeRotateYMatrix(-180+roty))
+  );
+
+  objects[1].localMatrix = utils.multiplyMatrices(utils.multiplyMatrices(
+    objects[1].localMatrix,
+    rotmat),
+    utils.MakeTranslateMatrix(dx, 0.0, -dz)
+    );
+
+  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 45){  
+    dxdzdrot = [0, 0, 0];
+
+    objects[1].localMatrix = utils.MakeWorld(
+      settings.hammerStartingPosition[0],
+      settings.hammerStartingPosition[1],
+      settings.hammerStartingPosition[2],
+      0, 0, 0, 0.6
+    )
+    hammerAnimFinished = true;
+    lastHammerUpdateTime = 0;
+    return;
+  }
+
+
+}
+
+//
+function animate() {
+  
+  animateHammer();
+  animateMoles();
+
+
+}
 
 //draws the scene
 function drawScene() {
-  // animate()
+  
+  animate();
+
+  // console.log(hammerAnimFinished);
+
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
