@@ -1,0 +1,13 @@
+
+#timer {
+    position: absolute;
+    text-align: center;
+    top: 0;
+    left: 0;
+    color: #FF0000;
+    width: 100%;
+    font-size: 35px;
+    /*background: #FF0000 url(Assets/timer_symbol.png);  */
+    border-bottom: 10px solid #FF0000;
+    transition: all .3s ease-out;
+  }

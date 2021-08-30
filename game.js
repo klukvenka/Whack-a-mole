@@ -7,9 +7,9 @@ function Game() {
 
     this.timer = {
         inteval: undefined,
-        countFrom: 60, //sec
+        countFrom: 10, //sec
         count: this.countFrom,
-        progressiveView: document.getElementById('timer'),
+        progressView: document.getElementById('timer'),
         
         Restart: function() {
             if(this.interval) {
@@ -26,11 +26,13 @@ function Game() {
             if(this.count <= 0) {
                 this.count = 0;
                 clearInterval(this.interval);
-                this.gameOver();
+                game.gameOver();
             }
             // update the view
             var progress = this.count / this.countFrom * 100;    
-            this.progressView.style.width = progress + "%";
+            this.progressView.innerHTML = progress + "%";
+            console.log(this.progressView.style.width = progress + "%");
+
         } 
 
     }
@@ -49,6 +51,7 @@ Game.prototype.gameOver = function() {
     if(this.isStarted) {
         this.isStarted = false;
         this.timer.Stop();
+        alert("Game Over");
 
     }
 }
