@@ -422,7 +422,6 @@ var lastMolesTime = [null, null, null, null, null];
 var molesDy = [0, 0, 0, 0, 0];
 
 function animateMoles(){
-  console.log(molesState);
   //check what moles were already moving in last frame and reschedule their movement in this frame
   molesState.forEach((state, id) => {
     if (state != 0) {
@@ -452,6 +451,8 @@ function moveMole(id, upDown) {
 
   dy = dt/400.0*0.6;
 
+  console.log(molesPos);
+
   molesDy[id] += dy;
 
   objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, 0.0 + dy*upDown, 0.0));
@@ -459,10 +460,11 @@ function moveMole(id, upDown) {
   lastMolesTime[id] = currentTime; //Need to update it for the next frame
 
   if (molesDy[id] >= 0.6) {
-    dy = 0;
+    // dy = 0;
     molesDy[id] = 0;
     molesPos[id] = upDown;
     molesState[id] = 0;
+    lastMolesTime[id] = 0;
     
     if(upDown == 1){//mole is up, reset local matrix to be up
 
