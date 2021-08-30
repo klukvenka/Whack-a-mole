@@ -30,7 +30,7 @@ var settings = {
         [-0.63523, -0.6, 0],
         [0, -0.6, 0],
         [0.6353, -0.6, 0],
-        [-0.31763, -0.7, 0.4429],
+        [-0.31763, -0.7, 0.4429],  
         [0.31763, -0.7, 0.4429]
     ],
 
@@ -400,7 +400,7 @@ function getRandomInt(max) {
 
 function moleRand(){
   let randMole = getRandomInt(5);
-
+  
   //if mole is still (either up or down) start movement
   if (molesState[randMole] == 0) {
     switch(molesPos[randMole]){
@@ -449,9 +449,9 @@ function moveMole(id, upDown) {
     dt = 1 / 50;
   }
 
-  dy = (dt/400.0*0.6)*upDown;
+  dy = (dt/120.0*0.6)*upDown;
 
-  console.log(molesPos);
+ 
 
   molesDy[id] += dy;
 
@@ -503,7 +503,7 @@ $(document).on('keypress', function(e){
   if ((key == 'q' || key == 'w' || key == 'e' || key == 'a' || key == 's') && hammerAnimFinished) {
     switch(key){
       case 'q':
-        targetHole = 2;
+        targetHole = 0;
         hammerAnimFinished = false;
         break;
       
@@ -513,17 +513,17 @@ $(document).on('keypress', function(e){
         break;
       
       case 'e':
-        targetHole = 0;
+        targetHole = 2;
         hammerAnimFinished = false;
         break;
 
       case 'a':
-        targetHole = 4;
+        targetHole = 3;
         hammerAnimFinished = false;
         break;
 
       case 's':
-        targetHole = 3;
+        targetHole = 4;
         hammerAnimFinished = false;
         break;
     }
@@ -533,7 +533,7 @@ $(document).on('keypress', function(e){
 
 function animateHammer() {
   if (hammerAnimFinished) return;
-
+  console.log(targetHole);
   // let hammer = objects[1];
   // if (!positionBeforeAnim)
   //   positionBeforeAnim = hammer.localMatrix
@@ -547,14 +547,15 @@ function animateHammer() {
   }
   lastHammerUpdateTime = currentTime;
 
-  let distanceX = (1/0.6)*(hammerWorldPos[0]-holesWorldPositions[targetHole][0]);
-  let distanceY = (1/0.6)*(hammerWorldPos[1]-holesWorldPositions[targetHole][1]+0.6);
-  let distanceZ = (1/0.6)*(hammerWorldPos[2]-holesWorldPositions[targetHole][2]);
+  let distanceX = 1.4*(holesWorldPositions[targetHole][0] - hammerWorldPos[0]);
+  let distanceY = (holesWorldPositions[targetHole][1]+0.6 - hammerWorldPos[1]);
+  let distanceZ = 1.4*(holesWorldPositions[targetHole][2] - hammerWorldPos[2]);
   
   let rotx = Math.atan(distanceY/distanceZ)*180/Math.PI;
   let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
   let rot = dt/120.0*rotx;
-  let dx = dt/120.0*distanceX; 
+  let dx = dt/120.0*distanceX;
+  // let dy = dt/120.0*distanceY;
   let dz = dt/120.0*distanceZ;
 
   dxdzdrot[0] += Math.abs(dx);
@@ -573,9 +574,15 @@ function animateHammer() {
   objects[1].localMatrix = utils.multiplyMatrices(utils.multiplyMatrices(
     objects[1].localMatrix,
     rotmat),
-    utils.MakeTranslateMatrix(dx, 0.0, -dz)
+    utils.MakeTranslateMatrix(dx, 0.0, dz)
     );
+  
+   if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2){
+     //mole is hit
+    molesState[targetHole] = -1;
 
+   }
+  
   if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= rotx){  
     dxdzdrot = [0, 0, 0];
 
@@ -598,8 +605,6 @@ function animate() {
   
   animateHammer();
   animateMoles();
-
-
 }
 
 //draws the scene
