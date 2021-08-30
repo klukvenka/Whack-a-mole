@@ -449,25 +449,25 @@ function moveMole(id, upDown) {
     dt = 1 / 50;
   }
 
-  dy = dt/400.0*0.6;
+  dy = (dt/400.0*0.6)*upDown;
 
   console.log(molesPos);
 
   molesDy[id] += dy;
 
-  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, 0.0 + dy*upDown, 0.0));
+  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, dy, 0.0));
 
   lastMolesTime[id] = currentTime; //Need to update it for the next frame
 
-  if (molesDy[id] >= 0.6) {
+  if (molesDy[id] >= 0.6 || molesDy[id] <= 0) {
     // dy = 0;
-    molesDy[id] = 0;
+    
     molesPos[id] = upDown;
     molesState[id] = 0;
     lastMolesTime[id] = 0;
     
     if(upDown == 1){//mole is up, reset local matrix to be up
-
+      molesDy[id] = 0.6;
       objects[id+2].localMatrix = utils.MakeTranslateMatrix(
         settings.molesStartingPositions[id][0],
         settings.molesStartingPositions[id][1]+0.6,
@@ -476,11 +476,14 @@ function moveMole(id, upDown) {
 
     }
       //mole is down, reset local matrix to be down
-    else objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+    else {
+      molesDy[id] = 0;
+      objects[id+2].localMatrix = utils.MakeTranslateMatrix(
       settings.molesStartingPositions[id][0],
       settings.molesStartingPositions[id][1],
       settings.molesStartingPositions[id][2]
     )
+  }
 
     return;
   }
@@ -701,16 +704,12 @@ function main() {
 	canvas.addEventListener("mousemove", doMouseMove, false);
 	canvas.addEventListener("mousewheel", doMouseWheel, false);
   
-  //creating perspective matrix
-  //
-
-
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
 
   setInterval(function() {
     moleRand();
-  }, 500);
+  }, 1500);
 
   drawScene();
   drawEnv()
