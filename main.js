@@ -381,6 +381,10 @@ function defineSceneGraph() {
     [hole5Pos[0], hole5Pos[1] - y_trasl, hole5Pos[2]],//5
   ]
 
+  hammerWorldPos = utils.multiplyMatrixVector(
+    utils.multiplyMatrices(hammerNode.localMatrix, cabinetSpace.localMatrix),
+    [0.0, 0.0, 0.0, 1.0]);
+
   return cabinetSpace;
 }
 
@@ -394,26 +398,31 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-var lastMolesTime = [null, null, null, null, null];
-var molesDy = [0, 0, 0, 0, 0];
-
-function animateMoles(){
-  
+function moleRand(){
   let randMole = getRandomInt(5);
 
   //if mole is still (either up or down) start movement
   if (molesState[randMole] == 0) {
     switch(molesPos[randMole]){
       case -1: //mole is in the hole, go up
-        moveMole(randMole, 1);
+        // moveMole(randMole, 1);
+        molesState[randMole] = 1;
         break;
       case 1: //mole is up, go down
-        moveMole(randMole, -1);
+        // moveMole(randMole, -1);
+        molesState[randMole] = -1;
         break;
     }
-
   }
 
+
+}
+
+var lastMolesTime = [null, null, null, null, null];
+var molesDy = [0, 0, 0, 0, 0];
+
+function animateMoles(){
+  console.log(molesState);
   //check what moles were already moving in last frame and reschedule their movement in this frame
   molesState.forEach((state, id) => {
     if (state != 0) {
@@ -533,22 +542,21 @@ function animateHammer() {
   }
   lastHammerUpdateTime = currentTime;
 
-  let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
-  let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
+  let distanceX = (1/0.6)*(hammerWorldPos[0]-holesWorldPositions[targetHole][0]);
+  let distanceY = (1/0.6)*(hammerWorldPos[1]-holesWorldPositions[targetHole][1]+0.6);
+  let distanceZ = (1/0.6)*(hammerWorldPos[2]-holesWorldPositions[targetHole][2]);
   
-  let rot = dt/120.0*90;
-  dx = dt/120.0*distanceX; 
-  dz = dt/120.0*distanceZ;
+  let rotx = Math.atan(distanceY/distanceZ)*180/Math.PI;
+  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
+  let rot = dt/120.0*rotx;
+  let dx = dt/120.0*distanceX; 
+  let dz = dt/120.0*distanceZ;
 
   dxdzdrot[0] += Math.abs(dx);
   dxdzdrot[1] += Math.abs(dz);
   dxdzdrot[2] += rot;
 
-  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
-  
-  console.log(roty);
-
-  //make a rotation about the y axis centered on the handle of the hammer  
+  //make a rotation around an arbitrary axis centered on the handle of the hammer perpendicular to the direction of the hole 
   rotmat = utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(
     utils.MakeRotateYMatrix(-180+roty),
     utils.MakeTranslateMatrix(0, -1.5, 0.0)), 
@@ -563,7 +571,7 @@ function animateHammer() {
     utils.MakeTranslateMatrix(dx, 0.0, -dz)
     );
 
-  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 90){  
+  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= rotx){  
     dxdzdrot = [0, 0, 0];
 
     objects[1].localMatrix = utils.MakeWorld(
@@ -697,6 +705,10 @@ function main() {
 
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
+
+  setInterval(function() {
+    moleRand();
+  }, 500);
 
   drawScene();
   drawEnv()
