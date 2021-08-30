@@ -3,7 +3,7 @@ var gl = null,
   program = null;
 
 var lookRadius = 15;
-var fieldOfView = 60;
+var fieldOfView = 40;
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -46,9 +46,9 @@ var lastUpdateTime = (new Date).getTime();
 
 //Camera parameters
 var cx = 0.0;
-var cy = 6.0;
+var cy = 10;
 var cz = 7.5;
-var elevation = -30.0;
+var elevation = -40.0;
 var angle = 0.0;
 
 var delta = 0.1;
@@ -536,7 +536,7 @@ function animateHammer() {
   let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
   let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
   
-  let rot = dt/120.0*45;
+  let rot = dt/120.0*90;
   dx = dt/120.0*distanceX; 
   dz = dt/120.0*distanceZ;
 
@@ -563,7 +563,7 @@ function animateHammer() {
     utils.MakeTranslateMatrix(dx, 0.0, -dz)
     );
 
-  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 45){  
+  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 90){  
     dxdzdrot = [0, 0, 0];
 
     objects[1].localMatrix = utils.MakeWorld(
