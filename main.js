@@ -534,10 +534,9 @@ $(document).on('keypress', function(e){
   }
 } 
 );
-
+var doOnce = false;
 function animateHammer() {
   if (hammerAnimFinished) return;
-  console.log(targetHole);
   // let hammer = objects[1];
   // if (!positionBeforeAnim)
   //   positionBeforeAnim = hammer.localMatrix
@@ -581,12 +580,13 @@ function animateHammer() {
     utils.MakeTranslateMatrix(dx, 0.0, dz)
     );
   
-   if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2){
+   if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2 && !doOnce){
      //mole is hit
     molesState[targetHole] = -1;
-
+    game.score ++;
+    doOnce = true;
    }
-  
+
   if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= rotx){  
     dxdzdrot = [0, 0, 0];
 
@@ -598,6 +598,7 @@ function animateHammer() {
     )
     hammerAnimFinished = true;
     lastHammerUpdateTime = 0;
+    doOnce = false;
     return;
   }
 
