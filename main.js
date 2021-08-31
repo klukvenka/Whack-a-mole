@@ -705,7 +705,7 @@ function main() {
   drawScene();
   drawEnv();
 
-  game.Start();
+  //game.Start();
 }
 
 window.onload = initWebGl;
