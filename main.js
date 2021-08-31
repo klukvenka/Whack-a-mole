@@ -101,33 +101,42 @@ var bufferInfoEnv;
 var mouseState = false;
 var lastMouseX = -100, lastMouseY = -100;
 function doMouseDown(event) {
-	lastMouseX = event.pageX;
-	lastMouseY = event.pageY;
-	mouseState = true;
+  if(!game.isStarted){
+    lastMouseX = event.pageX;
+    lastMouseY = event.pageY;
+    mouseState = true;
+  }
 }
 function doMouseUp(event) {
-	lastMouseX = -100;
+  if(!game.isStarted){
+    lastMouseX = -100;
 	lastMouseY = -100;
 	mouseState = false;
+  }
 }
 function doMouseMove(event) {
-	if(mouseState) {
-		var dx = event.pageX - lastMouseX;
-		var dy = lastMouseY - event.pageY;
-		lastMouseX = event.pageX;
-		lastMouseY = event.pageY;
-		
-		if((dx != 0) || (dy != 0)) {
-			angle = angle + 0.25 * dx;
-			elevation = elevation + 0.25 * dy;
-		}
-	}
+  if(!game.isStarted){
+    if(mouseState) {
+      var dx = event.pageX - lastMouseX;
+      var dy = lastMouseY - event.pageY;
+      lastMouseX = event.pageX;
+      lastMouseY = event.pageY;
+      
+      if((dx != 0) || (dy != 0)) {
+        angle = angle + 0.25 * dx;
+        elevation = elevation + 0.25 * dy;
+      }
+    }
+  }
+	
 }
 function doMouseWheel(event) {
-	var nLookRadius = lookRadius + event.wheelDelta/1000.0;
+  if(!game.isStarted){
+    var nLookRadius = lookRadius + event.wheelDelta/1000.0;
 	if((nLookRadius > 2.0) && (nLookRadius < 20.0)) {
 		lookRadius = nLookRadius;
 	}
+}
 }
 
 //Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
@@ -721,8 +730,6 @@ function main() {
 
   drawScene();
   drawEnv();
-
-  //game.Start();
 }
 
 window.onload = initWebGl;
@@ -740,5 +747,16 @@ function moveCamera(){
   lookRadius = 15;
   fieldOfView = 30;
   elevation = -50.0;
+  angle = 0.0;
+
+  delta = 0.1;
 }
 
+// var slider = document.getElementById("fovSlider");
+// var output = document.getElementById("fovValue");
+// output.innerHTML = slider.value; // Display the default slider value
+
+// // Update the current slider value (each time you drag the slider handle)
+// slider.oninput = function() {
+//   output.innerHTML = this.value;
+// }
