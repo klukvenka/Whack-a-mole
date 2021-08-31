@@ -32,7 +32,7 @@ var settings = {
         [-0.63523, -0.6, 0],
         [0, -0.6, 0],
         [0.6353, -0.6, 0],
-        [-0.31763, -0.7, 0.4429],
+        [-0.31763, -0.7, 0.4429],  
         [0.31763, -0.7, 0.4429]
     ],
 
@@ -385,6 +385,10 @@ function defineSceneGraph() {
     [hole5Pos[0], hole5Pos[1] - y_trasl, hole5Pos[2]],//5
   ]
 
+  hammerWorldPos = utils.multiplyMatrixVector(
+    utils.multiplyMatrices(hammerNode.localMatrix, cabinetSpace.localMatrix),
+    [0.0, 0.0, 0.0, 1.0]);
+
   return cabinetSpace;
 }
 
@@ -398,26 +402,30 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-var lastMolesTime = [null, null, null, null, null];
-var molesDy = [0, 0, 0, 0, 0];
-
-function animateMoles(){
-  
+function moleRand(){
   let randMole = getRandomInt(5);
-
+  
   //if mole is still (either up or down) start movement
   if (molesState[randMole] == 0) {
     switch(molesPos[randMole]){
       case -1: //mole is in the hole, go up
-        moveMole(randMole, 1);
+        // moveMole(randMole, 1);
+        molesState[randMole] = 1;
         break;
       case 1: //mole is up, go down
-        moveMole(randMole, -1);
+        // moveMole(randMole, -1);
+        molesState[randMole] = -1;
         break;
     }
-
   }
 
+
+}
+
+var lastMolesTime = [null, null, null, null, null];
+var molesDy = [0, 0, 0, 0, 0];
+
+function animateMoles(){
   //check what moles were already moving in last frame and reschedule their movement in this frame
   molesState.forEach((state, id) => {
     if (state != 0) {
@@ -445,22 +453,25 @@ function moveMole(id, upDown) {
     dt = 1 / 50;
   }
 
-  dy = dt/400.0*0.6;
+  dy = (dt/120.0*0.6)*upDown;
+
+ 
 
   molesDy[id] += dy;
 
-  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, 0.0 + dy*upDown, 0.0));
+  objects[id+2].localMatrix = utils.multiplyMatrices(objects[id+2].localMatrix, utils.MakeTranslateMatrix(0.0, dy, 0.0));
 
   lastMolesTime[id] = currentTime; //Need to update it for the next frame
 
-  if (molesDy[id] >= 0.6) {
-    dy = 0;
-    molesDy[id] = 0;
+  if (molesDy[id] >= 0.6 || molesDy[id] <= 0) {
+    // dy = 0;
+    
     molesPos[id] = upDown;
     molesState[id] = 0;
+    lastMolesTime[id] = 0;
     
     if(upDown == 1){//mole is up, reset local matrix to be up
-
+      molesDy[id] = 0.6;
       objects[id+2].localMatrix = utils.MakeTranslateMatrix(
         settings.molesStartingPositions[id][0],
         settings.molesStartingPositions[id][1]+0.6,
@@ -469,11 +480,14 @@ function moveMole(id, upDown) {
 
     }
       //mole is down, reset local matrix to be down
-    else objects[id+2].localMatrix = utils.MakeTranslateMatrix(
+    else {
+      molesDy[id] = 0;
+      objects[id+2].localMatrix = utils.MakeTranslateMatrix(
       settings.molesStartingPositions[id][0],
       settings.molesStartingPositions[id][1],
       settings.molesStartingPositions[id][2]
     )
+  }
 
     return;
   }
@@ -485,7 +499,7 @@ function moveMole(id, upDown) {
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
-var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis
+var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis and rotation
 
 $(document).on('keypress', function(e){
   key = String.fromCharCode(e.which);
@@ -493,7 +507,7 @@ $(document).on('keypress', function(e){
   if ((key == 'q' || key == 'w' || key == 'e' || key == 'a' || key == 's') && hammerAnimFinished) {
     switch(key){
       case 'q':
-        targetHole = 2;
+        targetHole = 0;
         hammerAnimFinished = false;
         break;
       
@@ -503,17 +517,17 @@ $(document).on('keypress', function(e){
         break;
       
       case 'e':
-        targetHole = 0;
+        targetHole = 2;
         hammerAnimFinished = false;
         break;
 
       case 'a':
-        targetHole = 4;
+        targetHole = 3;
         hammerAnimFinished = false;
         break;
 
       case 's':
-        targetHole = 3;
+        targetHole = 4;
         hammerAnimFinished = false;
         break;
     }
@@ -523,7 +537,7 @@ $(document).on('keypress', function(e){
 
 function animateHammer() {
   if (hammerAnimFinished) return;
-
+  console.log(targetHole);
   // let hammer = objects[1];
   // if (!positionBeforeAnim)
   //   positionBeforeAnim = hammer.localMatrix
@@ -537,22 +551,22 @@ function animateHammer() {
   }
   lastHammerUpdateTime = currentTime;
 
-  let distanceX = settings.hammerStartingPosition[0]-holesWorldPositions[targetHole][0];
-  let distanceZ = settings.hammerStartingPosition[2]-holesWorldPositions[targetHole][2];
+  let distanceX = 1.4*(holesWorldPositions[targetHole][0] - hammerWorldPos[0]);
+  let distanceY = (holesWorldPositions[targetHole][1]+0.6 - hammerWorldPos[1]);
+  let distanceZ = 1.4*(holesWorldPositions[targetHole][2] - hammerWorldPos[2]);
   
-  let rot = dt/120.0*90;
-  dx = dt/120.0*distanceX; 
-  dz = dt/120.0*distanceZ;
+  let rotx = Math.atan(distanceY/distanceZ)*180/Math.PI;
+  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
+  let rot = dt/120.0*rotx;
+  let dx = dt/120.0*distanceX;
+  // let dy = dt/120.0*distanceY;
+  let dz = dt/120.0*distanceZ;
 
   dxdzdrot[0] += Math.abs(dx);
   dxdzdrot[1] += Math.abs(dz);
   dxdzdrot[2] += rot;
 
-  let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
-  
-  console.log(roty);
-
-  //make a rotation about the y axis centered on the handle of the hammer  
+  //make a rotation around an arbitrary axis centered on the handle of the hammer perpendicular to the direction of the hole 
   rotmat = utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(utils.multiplyMatrices(
     utils.MakeRotateYMatrix(-180+roty),
     utils.MakeTranslateMatrix(0, -1.5, 0.0)), 
@@ -564,10 +578,16 @@ function animateHammer() {
   objects[1].localMatrix = utils.multiplyMatrices(utils.multiplyMatrices(
     objects[1].localMatrix,
     rotmat),
-    utils.MakeTranslateMatrix(dx, 0.0, -dz)
+    utils.MakeTranslateMatrix(dx, 0.0, dz)
     );
+  
+   if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2){
+     //mole is hit
+    molesState[targetHole] = -1;
 
-  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= 90){  
+   }
+  
+  if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= rotx){  
     dxdzdrot = [0, 0, 0];
 
     objects[1].localMatrix = utils.MakeWorld(
@@ -589,8 +609,6 @@ function animate() {
   
   animateHammer();
   animateMoles();
-
-
 }
 
 //draws the scene
@@ -695,12 +713,12 @@ function main() {
 	canvas.addEventListener("mousemove", doMouseMove, false);
 	canvas.addEventListener("mousewheel", doMouseWheel, false);
   
-  //creating perspective matrix
-  //
-
-
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
+
+  setInterval(function() {
+    moleRand();
+  }, 1500);
 
   drawScene();
   drawEnv();
