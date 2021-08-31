@@ -3,6 +3,7 @@
 function Game() {
     //this.time;
     this.score = 0;
+    this.scoreText = document.getElementById('score_text');
     this.isStarted = false;
 
     this.timer = {
@@ -31,7 +32,7 @@ function Game() {
             // update the view
             var progress = this.count / this.countFrom * 100;    
             this.progressView.innerHTML = progress + "%";
-            console.log(this.progressView.style.width = progress + "%");
+            //console.log(this.progressView.style.width = progress + "%");
 
         } 
 
@@ -54,6 +55,13 @@ Game.prototype.gameOver = function() {
         document.getElementById('gameOver').style.display = 'block';
     }
 }
+
+Game.prototype.makeScore = function() {
+    this.score = this.score+1;
+    this.scoreText.innerHTML = this.score;
+}
+
+
 
 
 // function Timer() {

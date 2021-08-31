@@ -580,7 +580,9 @@ function animateHammer() {
      //mole is hit
     clearTimeout(moleTimers[targetHole]);
     molesState[targetHole] = -1;            
-    game.score ++;
+    //game.score ++;
+    game.score_text.innerHTML = game.score;
+    console.log(game.score_text.innerHTML);
     doOnce = true;
    }
 
@@ -735,3 +737,4 @@ function moveCamera(){
   fieldOfView = 30;
   elevation = -50.0;
 }
+
