@@ -94,6 +94,12 @@ const uniforms = {
   DToonTh: 0.0,
   SToonTh: 0.0,
   specularType: [],
+  LPos: [],
+  LSpotDir: [],
+  LConeOut: [],
+  LConeIn: [],
+  LDecay: [],
+  LTarget: []
 };
 
 // uniforms for environment (skybox)
@@ -655,7 +661,7 @@ function drawScene() {
   uniforms.eyePos = [cx,cy,cz];
   // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
   uniforms.u_texture = texture;
-  uniforms.SspecKwAng = 0.5; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
+  uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
   uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
   uniforms.LAlightColor = [1, 1, 1, 1];
   uniforms.specularColor = [1, 1, 1, 1];
@@ -663,6 +669,12 @@ function drawScene() {
   uniforms.DToonTh = 0.7;
   uniforms.SToonTh = 0.7;
   uniforms.specularType = [1,0,0,1];
+  uniforms.LPos = [cx,cy,cz];
+  uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+  uniforms.LConeOut = 180;
+  uniforms.LConeIn = 10;
+  uniforms.LDecay = 0.9;
+  uniforms.LTarget = 90;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
