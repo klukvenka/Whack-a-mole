@@ -57,10 +57,6 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
-//Light direction
-LPhi = -70;
-LTheta = 0;
-
 //Stores all the gometries of the objects
 var meshes = [];
 
@@ -96,7 +92,7 @@ const uniforms = {
   SToonTh: 0.0,
   specularType: [],
   LPos: [],
-  LSpotDir: [],
+  LSpotDir: [], // theta
   LConeOut: [],
   LConeIn: [],
   LDecay: [],
@@ -111,7 +107,11 @@ const uniformsEnv = {
 var bufferInfoEnv;
 
 // variables for sliders 
-var sliderConeOut=180;
+var sliderConeIn=80;
+var sliderConeOut=30;
+var LPhi = 45;
+var LTheta = 60;
+var sliderDecay = 1;
 
 // event handler
 var mouseState = false;
@@ -686,9 +686,9 @@ function drawScene() {
   uniforms.specularType = [1,0,0,1];
   uniforms.LPos = [cx,cy,cz];
   uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LConeOut = sliderConeOut//180;
-  uniforms.LConeIn = 10;
-  uniforms.LDecay = 0.9;
+  uniforms.LConeOut = sliderConeOut;
+  uniforms.LConeIn = sliderConeIn;
+  uniforms.LDecay = sliderDecay; //0.9;
   uniforms.LTarget = 90;
 
   //binding buffers and attributes to program
@@ -786,6 +786,12 @@ function moveCamera(){
 function onSliderChange(slider_value, setting) {
     document.getElementById(setting).innerHTML=slider_value;
     if (setting=='fovValue') fieldOfView = slider_value;
+    else if (setting=='DirThetaValue') LTheta = slider_value;
+    else if (setting=='DirPhiValue') LPhi = slider_value;
+    else if (setting=='DecayValue') sliderDecay = slider_value;
+    else if (setting=='LConeInValue') sliderConeIn = slider_value;
     else if (setting=='LConeOutValue') sliderConeOut = slider_value;
+    
   
 }
+LTheta

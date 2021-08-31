@@ -47,9 +47,24 @@
       <input id="fovSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'fovValue');">
     </div>
     <div class="settingsElement">
+      <div class="settingsText">Dir &theta;</div> 
+      <div id="DirThetaValue" class="settingsValue">60</div>
+      <input id="DirThetaSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'DirThetaValue');">
+    </div>
+    <div class="settingsElement">
+      <div class="settingsText">Dir &phi;</div> 
+      <div id="DirPhiValue" class="settingsValue">45</div>
+      <input id="DirPhiSlider" class="settingsSlider" type="range" min="-180" max="180" value="45" oninput="onSliderChange(this.value, 'DirPhiValue');">
+    </div>
+    <div class="settingsElement">
+      <div class="settingsText">Decay</div> 
+      <div id="DecayValue" class="settingsValue">1</div>
+      <input id="DecaySlider" class="settingsSlider" type="range" min="0" max="2" value="1" oninput="onSliderChange(this.value, 'DecayValue');">
+    </div>
+    <div class="settingsElement">
       <div class="settingsText">Cone in</div> 
-      <div id="LConeOutValue" class="settingsValue">30</div>
-      <input id="LConeOutSlider" class="settingsSlider" type="range" min="0" max="150" value="30" oninput="onSliderChange(this.value, 'LConeOutValue');">
+      <div id="LConeInValue" class="settingsValue">80</div>
+      <input id="LConeInSlider" class="settingsSlider" type="range" min="0" max="100" value="80" oninput="onSliderChange(this.value, 'LConeInValue');">
     </div>
     <div class="settingsElement">
       <div class="settingsText">Cone out</div> 
