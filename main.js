@@ -684,12 +684,12 @@ function drawScene() {
   uniforms.DToonTh = 0.7;
   uniforms.SToonTh = 0.7;
   uniforms.specularType = [1,0,0,1];
-  uniforms.LPos = [cx,cy,cz];
+  uniforms.LPos = [0, 1, 1];
   uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LConeOut = sliderConeOut//180;
-  uniforms.LConeIn = 10;
+  uniforms.LConeOut = sliderConeOut;//180;
+  uniforms.LConeIn = 1;
   uniforms.LDecay = 0.9;
-  uniforms.LTarget = 90;
+  uniforms.LTarget = 1;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);

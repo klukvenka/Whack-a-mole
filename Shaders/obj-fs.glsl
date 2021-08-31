@@ -119,23 +119,22 @@ void main() {
   vec3 t = normalize(cross(normalVec, vec3(1,0,0)));
   vec3 b = normalize(cross(normalVec, t));
 
-  //Spolight direction
+  //Spolight
   vec3 spotLightDir = normalize(LPos - fs_pos);
 
-  //Spotlight color
-  float LCosOut = cos(radians(LConeOut / 2.0));
-	float LCosIn = cos(radians(LConeOut * LConeIn / 2.0));
-	float CosAngle = dot(spotLightDir, LSpotDir);
-	vec4 spotLightColor = specularColor * pow(LTarget / length(LPos - fs_pos), LDecay) *
-						clamp((CosAngle - LCosOut) / (LCosIn - LCosOut), 0.0, 1.0);
-   
+	float num = dot(spotLightDir, LSpotDir) - cos(radians(LConeOut/2.0)); // declaring and initializing numerator
+	float den = cos(radians(LConeOut*LConeIn/2.0))-cos(radians(LConeOut/2.0));// declaring and initializing denominator
+	vec4 spotLightColor = diffuseColor * pow(LTarget/length(LPos - fs_pos), LDecay) * clamp(num/den, 0.0, 1.0);
+
+  vec4 pointLightCol = diffuseColor * pow(LTarget / length(LPos - fs_pos), LDecay);
+
   // Diffuse
-  vec4 diffuseSpot = compDiffuse(spotLightDir, spotLightColor, normalVec, diffColor, eyedirVec);
+  vec4 diffuseSpot = compDiffuse(spotLightDir, pointLightCol, normalVec, diffColor, eyedirVec);
   vec4 diffuseDirect = compDiffuse(lightDir, LAlightColor, normalVec, diffColor, eyedirVec);
   vec4 diffuse = diffuseSpot + diffuseDirect;
 
   //Specular
-  vec4 specularSpot = compSpecular(spotLightDir, spotLightColor, normalVec, eyedirVec, t, b);
+  vec4 specularSpot = compSpecular(spotLightDir, pointLightCol, normalVec, eyedirVec, t, b);
   vec4 specularDirect = compSpecular(lightDir, LAlightColor, normalVec, eyedirVec, t, b);
   vec4 specular = specularSpot + specularDirect;
   
