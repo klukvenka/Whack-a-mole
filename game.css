@@ -14,14 +14,6 @@
     transition: all .3s ease-out;
   }
 
-  /* .start_game {
-    background-image: url(asset/gui/play-button.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    height: 45px;
-  } */
-
    #game {
     background-image: url(Assets/Images/background3.png);
     background-size: cover;
@@ -47,7 +39,7 @@
   }
 
   .score {
-    background-image: url(Assets/Images/backg_score.png);
+    background-image: url(Assets/Images/score.png);
     height: 90px;
     width: 142px;
     left: 40px;
@@ -65,4 +57,23 @@
     font-size: 29px;
     color: #faedaa;
 
+  }
+
+  #gameOver {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    top: 0px;
+    background: rgba(40, 40, 40, 0.5);
+  }
+
+  .game_over {
+    background-image: url(Assets/Images/gameOver.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 120px;
+    margin: 20% auto;
   }
