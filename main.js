@@ -737,7 +737,9 @@ function main() {
 window.onload = initWebGl;
 
 function onStartButtonClick() {
-  document.getElementById("start_game").disabled = true;
+  document.getElementById("start_game").disabled = true; // disable button
+  document.getElementById('fovValue').innerHTML=" -"; // remove slider value
+  document.getElementById('fovSlider').disabled=true; // disable slider
   moveCamera();
   game.Start();
   moleInitTimer = setInterval(function() {
@@ -755,6 +757,7 @@ function moveCamera(){
 }
 
 function onSliderChange(slider_value) {
-  document.getElementById('fovValue').innerHTML=slider_value; 
-  fieldOfView = slider_value;
+    document.getElementById('fovValue').innerHTML=slider_value; 
+    fieldOfView = slider_value;
+  
 }
