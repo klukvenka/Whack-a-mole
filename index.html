@@ -44,7 +44,17 @@
     <div class="settingsElement">
       <div class="settingsText">Field Of View</div> 
       <div id="fovValue" class="settingsValue">60</div>
-      <input id="fovSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value);">
+      <input id="fovSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'fovValue');">
+    </div>
+    <div class="settingsElement">
+      <div class="settingsText">Cone in</div> 
+      <div id="LConeOutValue" class="settingsValue">30</div>
+      <input id="LConeOutSlider" class="settingsSlider" type="range" min="0" max="150" value="30" oninput="onSliderChange(this.value, 'LConeOutValue');">
+    </div>
+    <div class="settingsElement">
+      <div class="settingsText">Cone out</div> 
+      <div id="LConeOutValue" class="settingsValue">30</div>
+      <input id="LConeOutSlider" class="settingsSlider" type="range" min="0" max="150" value="30" oninput="onSliderChange(this.value, 'LConeOutValue');">
     </div>
 
     <div id="slider">
