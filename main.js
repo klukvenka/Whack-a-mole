@@ -57,6 +57,10 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
+//Light direction
+LPhi = -70;
+LTheta = 0;
+
 //Stores all the gometries of the objects
 var meshes = [];
 
@@ -85,7 +89,18 @@ const uniforms = {
   u_texture: [],
   SspecKwAng: [],
   LADir: [],
-  LAlightColor: []
+  LAlightColor: [],
+  specularColor: [],
+  SpecShine: 0.0,
+  DToonTh: 0.0,
+  SToonTh: 0.0,
+  specularType: [],
+  LPos: [],
+  LSpotDir: [],
+  LConeOut: [],
+  LConeIn: [],
+  LDecay: [],
+  LTarget: []
 };
 
 // uniforms for environment (skybox)
@@ -464,8 +479,7 @@ function moveMole(id, upDown) {
   lastMolesTime[id] = currentTime; //Need to update it for the next frame
 
   if (molesDy[id] >= 0.6 || molesDy[id] <= 0) {
-    // dy = 0;
-    
+  
     molesPos[id] = upDown;
     molesState[id] = 0;
     lastMolesTime[id] = 0;
@@ -481,7 +495,7 @@ function moveMole(id, upDown) {
       //schedule the downward movement of the mole
       moleTimers[id] = setTimeout(function(){
         molesState[id] = -1;  
-      }, 1500)
+      }, 1500);
 
     }
 
@@ -657,13 +671,25 @@ function drawScene() {
   uniforms.matrix = utils.transposeMatrix(projectionMatrix);
   uniforms.pMatrix = utils.transposeMatrix(viewWorldMatrix);
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
-  uniforms.ADir = [0, 1, 0];
+  uniforms.ADir = [cx,cy,cz];
   uniforms.eyePos = [cx,cy,cz];
   // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
   uniforms.u_texture = texture;
-  uniforms.SspecKwAng = 0.1; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-  uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
+  uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
+  uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
   uniforms.LAlightColor = [1, 1, 1, 1];
+  uniforms.specularColor = [1, 1, 1, 1];
+  uniforms.SpecShine = 1.0;
+  uniforms.DToonTh = 0.7;
+  uniforms.SToonTh = 0.7;
+  uniforms.specularType = [1,0,0,1];
+  uniforms.LPos = [cx,cy,cz];
+  uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+  uniforms.LConeOut = 180;
+  uniforms.LConeIn = 10;
+  uniforms.LDecay = 0.9;
+  uniforms.LTarget = 90;
+
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
   
