@@ -405,25 +405,16 @@ function getRandomInt(max) {
 function moleRand(){
   let randMole = getRandomInt(5);
   
-  //if mole is still (either up or down) start movement
-  if (molesState[randMole] == 0) {
-    switch(molesPos[randMole]){
-      case -1: //mole is in the hole, go up
-        // moveMole(randMole, 1);
-        molesState[randMole] = 1;
-        break;
-      case 1: //mole is up, go down
-        // moveMole(randMole, -1);
-        molesState[randMole] = -1;
-        break;
-    }
+  //if mole is down and steady start movement
+  if (molesPos[randMole] == -1 && molesState[randMole] == 0) { 
+      molesState[randMole] = 1;
   }
-
 
 }
 
 var lastMolesTime = [null, null, null, null, null];
 var molesDy = [0, 0, 0, 0, 0];
+var moleTimerz = [];
 
 function animateMoles(){
   //check what moles were already moving in last frame and reschedule their movement in this frame
@@ -442,6 +433,7 @@ function animateMoles(){
   });
 }
 
+
 function moveMole(id, upDown) {
   var currentTime = (new Date).getTime();
   let dt;
@@ -454,8 +446,6 @@ function moveMole(id, upDown) {
   }
 
   dy = (dt/120.0*0.6)*upDown;
-
- 
 
   molesDy[id] += dy;
 
@@ -478,7 +468,15 @@ function moveMole(id, upDown) {
         settings.molesStartingPositions[id][2]
       )
 
+      //schedule the downward movement of the mole
+      moleIsHit[id] = false;
+
+      moleTimerz[id] = setTimeout(function(){
+        molesState[id] = -1;  
+      }, 3000)
+
     }
+
       //mole is down, reset local matrix to be down
     else {
       molesDy[id] = 0;
@@ -496,6 +494,7 @@ function moveMole(id, upDown) {
 }
 
 //HAMMER ANIMATION
+var moleIsHit = [false, false, false, false, false];
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
@@ -582,7 +581,8 @@ function animateHammer() {
   
    if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2 && !doOnce){
      //mole is hit
-    molesState[targetHole] = -1;
+    clearTimeout(moleTimerz[targetHole]);
+    molesState[targetHole] = -1;            
     game.score ++;
     doOnce = true;
    }
@@ -616,8 +616,6 @@ function animate() {
 function drawScene() {
   
   animate();
-
-  // console.log(hammerAnimFinished);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
@@ -719,7 +717,7 @@ function main() {
 
   setInterval(function() {
     moleRand();
-  }, 1500);
+  }, 1000);
 
   drawScene();
   drawEnv();
