@@ -495,7 +495,7 @@ function moveMole(id, upDown) {
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
-var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis
+var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis and rotation
 
 $(document).on('keypress', function(e){
   key = String.fromCharCode(e.which);
