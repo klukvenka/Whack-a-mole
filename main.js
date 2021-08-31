@@ -58,7 +58,7 @@ var delta = 0.1;
 var flag = 0;
 
 //Light direction
-LPhi = -70;
+LPhi = -90;
 LTheta = 0;
 
 //Stores all the gometries of the objects
@@ -83,24 +83,17 @@ const uniforms = {
   matrix: [],
   pMatrix: [],
   nMatrix: [],
-  ADir: [],
-  eyePos: [],
-  diffuseColor: [],
   u_texture: [],
-  SspecKwAng: [],
-  LADir: [],
-  LAlightColor: [],
-  specularColor: [],
-  SpecShine: 0.0,
-  DToonTh: 0.0,
-  SToonTh: 0.0,
-  specularType: [],
-  LPos: [],
-  LSpotDir: [],
-  LConeOut: [],
-  LConeIn: [],
-  LDecay: [],
-  LTarget: []
+  eyePos:[],
+  LDir:[],
+  LDPos:[],
+  spotPos: [],
+  spotDir:[],
+  coneOut:[],
+  coneIn:[],
+  decay:[],
+  target:[],
+  SpecShine:[]
 };
 
 // uniforms for environment (skybox)
@@ -672,24 +665,17 @@ function drawScene() {
   uniforms.matrix = utils.transposeMatrix(projectionMatrix);
   uniforms.pMatrix = utils.transposeMatrix(viewWorldMatrix);
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
-  uniforms.ADir = [cx,cy,cz];
-  uniforms.eyePos = [cx,cy,cz];
-  // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
   uniforms.u_texture = texture;
-  uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-  uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LAlightColor = [1, 1, 1, 1];
-  uniforms.specularColor = [1, 1, 1, 1];
+  uniforms.eyePos = [cx,cy,cz];
+  uniforms.LDPos = [0, 100, 100];
+  uniforms.LDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
   uniforms.SpecShine = 1.0;
-  uniforms.DToonTh = 0.7;
-  uniforms.SToonTh = 0.7;
-  uniforms.specularType = [1,0,0,1];
-  uniforms.LPos = [0, 1, 1];
-  uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LConeOut = sliderConeOut;//180;
-  uniforms.LConeIn = 1;
-  uniforms.LDecay = 0.9;
-  uniforms.LTarget = 1;
+  uniforms.spotPos = [0, 100, 100];
+  uniforms.spotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+  uniforms.coneOut = sliderConeOut;//180;
+  uniforms.coneIn = 1;
+  uniforms.decay = 0.9;
+  uniforms.target = 1;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
