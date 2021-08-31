@@ -501,6 +501,8 @@ function moveMole(id, upDown) {
   molesState[id] = upDown;
 }
 
+
+
 //HAMMER ANIMATION
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
@@ -752,11 +754,7 @@ function moveCamera(){
   delta = 0.1;
 }
 
-// var slider = document.getElementById("fovSlider");
-// var output = document.getElementById("fovValue");
-// output.innerHTML = slider.value; // Display the default slider value
-
-// // Update the current slider value (each time you drag the slider handle)
-// slider.oninput = function() {
-//   output.innerHTML = this.value;
-// }
+function onSliderChange(slider_value) {
+  document.getElementById('fovValue').innerHTML=slider_value; 
+  fieldOfView = slider_value;
+}
