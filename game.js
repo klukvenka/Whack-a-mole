@@ -5,6 +5,7 @@ function Game() {
     this.score = 0;
     this.scoreText = document.getElementById('score_text');
     this.isStarted = false;
+    this.game_over = false;
 
     this.timer = {
         inteval: undefined,
@@ -51,6 +52,7 @@ Game.prototype.Start = function() {
 Game.prototype.gameOver = function() {
     if(this.isStarted) {
         this.isStarted = false;
+        this.game_over = true;
         this.timer.Stop();
         document.getElementById('gameOver').style.display = 'block';
     }
@@ -58,7 +60,7 @@ Game.prototype.gameOver = function() {
 
 Game.prototype.makeScore = function() {
     this.score = this.score+1;
-    this.scoreText.innerHTML = this.score;
+    this.scoreText.innerHTML = this.score.toString();
 }
 
 

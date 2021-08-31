@@ -3,6 +3,7 @@ var gl = null,
   program = null;
 
 var game;
+var moleInitTimer; // for setInterval fucntion that changes state of random mole 
 
 var lookRadius = 15;
 var fieldOfView = 60;
@@ -580,9 +581,7 @@ function animateHammer() {
      //mole is hit
     clearTimeout(moleTimers[targetHole]);
     molesState[targetHole] = -1;            
-    //game.score ++;
-    game.score_text.innerHTML = game.score;
-    console.log(game.score_text.innerHTML);
+    game.makeScore();
     doOnce = true;
    }
 
@@ -614,7 +613,9 @@ function animate() {
 //draws the scene
 function drawScene() {
   
-  animate();
+  if(game.isStarted) {
+    animate();
+  }
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.clearColor(0, 0, 0, 0);
@@ -663,6 +664,10 @@ function drawScene() {
   twgl.drawBufferInfo(gl, object.drawInfo.vertexArray);
 
   });
+
+  if(game.game_over) {
+    clearInterval(moleInitTimer);
+  }
 
   //continuously recalls himself
   window.requestAnimationFrame(drawScene);
@@ -714,10 +719,6 @@ function main() {
   //creates sceneGraph, stores root node in "root"
   root = defineSceneGraph();
 
-  setInterval(function() {
-    moleRand();
-  }, 1000);
-
   drawScene();
   drawEnv();
 
@@ -730,6 +731,9 @@ function onStartButtonClick() {
   document.getElementById("start_game").disabled = true;
   moveCamera();
   game.Start();
+  moleInitTimer = setInterval(function() {
+    moleRand();
+  }, 1000);
 }
 
 function moveCamera(){
