@@ -414,7 +414,7 @@ function moleRand(){
 
 var lastMolesTime = [null, null, null, null, null];
 var molesDy = [0, 0, 0, 0, 0];
-var moleTimerz = [];
+var moleTimers = [];
 
 function animateMoles(){
   //check what moles were already moving in last frame and reschedule their movement in this frame
@@ -469,11 +469,9 @@ function moveMole(id, upDown) {
       )
 
       //schedule the downward movement of the mole
-      moleIsHit[id] = false;
-
-      moleTimerz[id] = setTimeout(function(){
+      moleTimers[id] = setTimeout(function(){
         molesState[id] = -1;  
-      }, 3000)
+      }, 1500)
 
     }
 
@@ -494,7 +492,6 @@ function moveMole(id, upDown) {
 }
 
 //HAMMER ANIMATION
-var moleIsHit = [false, false, false, false, false];
 var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
@@ -581,7 +578,7 @@ function animateHammer() {
   
    if ((dxdzdrot[0] >= Math.abs(distanceX)*0.8 && dxdzdrot[1] >= Math.abs(distanceZ)*0.8 && dxdzdrot[2] >= rotx*0.8) && molesDy[targetHole] >= 0.2 && !doOnce){
      //mole is hit
-    clearTimeout(moleTimerz[targetHole]);
+    clearTimeout(moleTimers[targetHole]);
     molesState[targetHole] = -1;            
     game.score ++;
     doOnce = true;
