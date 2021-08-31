@@ -90,8 +90,8 @@
   }
 
   .settingsElement{
-    display: flex;
-    align-items: flex-start;
+    display: list-item;
+    align-items: center;
     float: right;
     height: 1.7em;
   }
@@ -111,6 +111,10 @@
   }
   
   .settingsValue{
+    font-family: Verdana;
+    font-weight: bold;
+    font-size: 14px;
+    color: #faedaa;
     float: right;
     min-width: 3.5em;
     order: 1;
