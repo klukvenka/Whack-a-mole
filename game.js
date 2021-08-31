@@ -58,7 +58,7 @@ Game.prototype.gameOver = function() {
 
 Game.prototype.makeScore = function() {
     this.score = this.score+1;
-    this.scoreText.innerHTML = this.score;
+    this.scoreText.innerHTML = this.score.toString();
 }
 
 

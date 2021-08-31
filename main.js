@@ -56,6 +56,10 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
+//Light direction
+LPhi = 60;
+LTheta = 45;
+
 //Stores all the gometries of the objects
 var meshes = [];
 
@@ -580,9 +584,7 @@ function animateHammer() {
      //mole is hit
     clearTimeout(moleTimers[targetHole]);
     molesState[targetHole] = -1;            
-    //game.score ++;
-    game.score_text.innerHTML = game.score;
-    console.log(game.score_text.innerHTML);
+    game.makeScore();
     doOnce = true;
    }
 
@@ -650,7 +652,7 @@ function drawScene() {
   // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
   uniforms.u_texture = texture;
   uniforms.SspecKwAng = 0.1; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-  uniforms.LADir = [Math.sin(utils.degToRad(60))*Math.sin(utils.degToRad(45)), Math.cos(utils.degToRad(60)), Math.sin(utils.degToRad(60))*Math.cos(utils.degToRad(45))];
+  uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
   uniforms.LAlightColor = [1, 1, 1, 1];
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
