@@ -4,13 +4,13 @@
     text-align: center;
     top: 0;
     left: 0;
-    color: #f5f3e1;
-    font-family: Helvetica;
+    color: #faedaa;
+    font-family: Verdana;
     font-weight: bold;
     width: 100%;
     font-size: 35px;
     background-image: url(Assets/Images/background2.jpeg);
-    border-bottom: 5px solid #f5f3e1;
+    border-bottom: 5px solid #faedaa;
     transition: all .3s ease-out;
   }
 
@@ -21,3 +21,48 @@
     background-position: center;
     height: 45px;
   } */
+
+   #game {
+    background-image: url(Assets/Images/background3.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    border: 5px solid #faedaa;
+    height: 230px;
+    position: absolute;
+    left: 30px;
+    top: 70px;
+    width: 230px;
+
+  } 
+
+  #start_game {
+    background-image: url(Assets/Images/PlayButton.png);
+    height: 80px;
+    width: 150px;
+    left: 40px;
+    top: 20px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  .score {
+    background-image: url(Assets/Images/backg_score.png);
+    height: 90px;
+    width: 142px;
+    left: 40px;
+    top: 120px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+
+  #score_text {
+    text-align: center;
+    top: 30px;
+    font-family: Verdana;
+    font-weight: bold;
+    font-size: 29px;
+    color: #faedaa;
+
+  }
