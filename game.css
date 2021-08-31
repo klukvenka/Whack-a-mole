@@ -105,11 +105,22 @@
 
   }
 
-  .settingsSlider{
+  /* .settingsSlider{
     width: 150px;
     margin-left: 2em;
     margin-right: .3em;
     opacity: 0.7;
+  } */
+
+  .settingsSlider {
+    background: linear-gradient(to right, #34016b 0%, #5202a8 25%, #6f02e3 50%, #6500d1 100%);
+    border: #f9ca24 2px solid;
+    border-radius: 8px;
+    height: 7px;
+    width: 150px;
+    outline: none;
+    transition: background .15s ease-in;
+    -webkit-appearance: none;
   }
   
   .settingsValue{
