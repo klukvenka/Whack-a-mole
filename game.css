@@ -1,0 +1,23 @@
+
+#timer {
+    position: absolute;
+    text-align: center;
+    top: 0;
+    left: 0;
+    color: #f5f3e1;
+    font-family: Helvetica;
+    font-weight: bold;
+    width: 100%;
+    font-size: 35px;
+    background-image: url(Assets/Images/background2.jpeg);
+    border-bottom: 5px solid #f5f3e1;
+    transition: all .3s ease-out;
+  }
+
+  /* .start_game {
+    background-image: url(asset/gui/play-button.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 45px;
+  } */

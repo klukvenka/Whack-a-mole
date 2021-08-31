@@ -2,8 +2,10 @@ var canvas;
 var gl = null,
   program = null;
 
+var game;
+
 var lookRadius = 15;
-var fieldOfView = 40;
+var fieldOfView = 60;
 
 //Copied from other whac-a-mole project (we have to rewrite this part)
 var settings = {
@@ -229,6 +231,8 @@ async function initWebGl(){
   //creating a buffer info for environment
   createEnvironmentBuffer(gl)
   
+
+   game = new Game();
   //initialization ended. Go to the main program
   main();
 }
@@ -699,7 +703,9 @@ function main() {
   root = defineSceneGraph();
 
   drawScene();
-  drawEnv()
+  drawEnv();
+
+  //game.Start();
 }
 
 window.onload = initWebGl;
