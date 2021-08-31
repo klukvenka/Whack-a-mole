@@ -55,9 +55,9 @@ void main() {
   vec4 spotlightColor = lightColor * pow(target/length(spotPos - fs_pos), decay) * clamp(num/den, 0.0, 1.0);
 
   //Lambert diffuse for direct light
-  float dDiffN = 0.2*max(0.0, dot(normalVec, dLightDir));
+  float dDiffN = max(0.0, dot(normalVec, dLightDir));
   vec4 dLightDiffuseCol = lightColor * texel;
-  vec4 dLightDiffuse = dLightDiffuseCol * dDiffN;
+  vec4 dLightDiffuse = dDiffN * dLightDiffuseCol;
 
   //Lambert diffuse for spot light
   float sDiffN = max(0.0, dot(normalVec, sLightDir));
@@ -65,7 +65,7 @@ void main() {
   vec4 sLightDiffuse = sLightDiffuseCol * sDiffN;
 
   //sum of diffuse components
-  vec4 diffuse = dLightDiffuse;
+  vec4 diffuse = dLightDiffuse+sLightDiffuse;
 
   //Phong Specular for direct light
   vec4 dSpecColor = pow(clamp(dot(eyedirVec,-reflect(dLightDir,normalVec)), 0.0, 1.0), SpecShine)*texel;
@@ -79,7 +79,9 @@ void main() {
   vec4 specular = dSpecular + sSpecular;
   
 
-  color = clamp(diffuse, 0.0, 1.0);
+  vec4 out_color = clamp(0.7*diffuse+0.3*specular, 0.0, 1.0);
+
+  color = vec4(out_color.rgb, 1.0);
 
 
 }

@@ -58,8 +58,8 @@ var delta = 0.1;
 var flag = 0;
 
 //Light direction
-LPhi = -90;
-LTheta = 0;
+LPhi = -120;
+LTheta = -60;
 
 //Stores all the gometries of the objects
 var meshes = [];
@@ -653,13 +653,18 @@ function drawScene() {
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
-  // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
   perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
-
   var normalsMatrix = utils.invertMatrix(utils.transposeMatrix(viewWorldMatrix));
+  var lightDirMatrix = utils.invertMatrix(utils.transposeMatrix(viewMatrix));
+  //transformed direct light for camera space
+  var directLightTransformed = utils.multiplyMatrix3Vector3(
+    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))]);
+  //transformed spot light for camera space
+  var spotLightTransformed = utils.multiplyMatrix3Vector3(
+    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))]);
 
   //populating uniform object
   uniforms.matrix = utils.transposeMatrix(projectionMatrix);
@@ -667,11 +672,11 @@ function drawScene() {
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
   uniforms.u_texture = texture;
   uniforms.eyePos = [cx,cy,cz];
-  uniforms.LDPos = [0, 100, 100];
-  uniforms.LDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+  uniforms.LDPos = [0, 1, 1];
+  uniforms.LDir = directLightTransformed;
   uniforms.SpecShine = 1.0;
   uniforms.spotPos = [0, 100, 100];
-  uniforms.spotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+  uniforms.spotDir = spotLightTransformed;
   uniforms.coneOut = sliderConeOut;//180;
   uniforms.coneIn = 1;
   uniforms.decay = 0.9;
