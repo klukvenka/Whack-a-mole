@@ -51,8 +51,7 @@ Game.prototype.gameOver = function() {
     if(this.isStarted) {
         this.isStarted = false;
         this.timer.Stop();
-        alert("Game Over");
-
+        document.getElementById('gameOver').style.display = 'block';
     }
 }
 

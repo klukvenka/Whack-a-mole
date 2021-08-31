@@ -728,3 +728,15 @@ function main() {
 }
 
 window.onload = initWebGl;
+
+function onStartButtonClick() {
+  document.getElementById("start_game").disabled = true;
+  moveCamera();
+  game.Start();
+}
+
+function moveCamera(){
+  lookRadius = 15;
+  fieldOfView = 30;
+  elevation = -50.0;
+}
