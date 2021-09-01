@@ -57,6 +57,15 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
+
+//Light direction
+LPhi = -120;
+LTheta = -60;
+
+//SpotLight direction
+sLPhi = -120;
+sLTheta = -60;
+
 //Stores all the gometries of the objects
 var meshes = [];
 
@@ -79,24 +88,33 @@ const uniforms = {
   matrix: [],
   pMatrix: [],
   nMatrix: [],
-  ADir: [],
-  eyePos: [],
-  diffuseColor: [],
   u_texture: [],
-  SspecKwAng: [],
-  LADir: [],
-  LAlightColor: [],
-  specularColor: [],
-  SpecShine: 0.0,
-  DToonTh: 0.0,
-  SToonTh: 0.0,
-  specularType: [],
-  LPos: [],
-  LSpotDir: [], // theta
-  LConeOut: [],
-  LConeIn: [],
-  LDecay: [],
-  LTarget: []
+  eyePos:[],
+  LDir:[],
+  // LDPos:[],
+  spotPos: [],
+  spotDir:[],
+  coneOut:[],
+  coneIn:[],
+  decay:[],
+  target:[],
+  SpecShine:[]
+
+//   SspecKwAng: [],
+//   LADir: [],
+//   LAlightColor: [],
+//   specularColor: [],
+//   SpecShine: 0.0,
+//   DToonTh: 0.0,
+//   SToonTh: 0.0,
+//   specularType: [],
+//   LPos: [],
+//   LSpotDir: [], // theta
+//   LConeOut: [],
+//   LConeIn: [],
+//   LDecay: [],
+//   LTarget: []
+
 };
 
 // uniforms for environment (skybox)
@@ -660,36 +678,49 @@ function drawScene() {
   //Renders all the 3D objects inside "objects"
   objects.forEach(function (object) {
   //creating projection matrix
-  // var worldMatrix = utils.MakeWorld(cubeTx, cubeTy, cubeTz, cubeRx, cubeRy, cubeRz, cubeS);
   var viewMatrix = utils.MakeView(cx, cy, cz, elevation, angle);
   perspectiveMatrix = utils.MakePerspective(fieldOfView, gl.canvas.width / gl.canvas.height, 0.1, 100.0);
   var viewWorldMatrix = utils.multiplyMatrices(viewMatrix, object.worldMatrix);
   var projectionMatrix = utils.multiplyMatrices(perspectiveMatrix, viewWorldMatrix);
-
   var normalsMatrix = utils.invertMatrix(utils.transposeMatrix(viewWorldMatrix));
+  var lightDirMatrix = utils.invertMatrix(utils.transposeMatrix(viewMatrix));
+  //transformed direct light for camera space
+  var directLightTransformed = utils.multiplyMatrix3Vector3(
+    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))]);
+  //transformed spot light for camera space
+  var spotLightTransformed = utils.multiplyMatrix3Vector3(
+    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(sLPhi))*Math.sin(utils.degToRad(sLTheta)), Math.cos(utils.degToRad(sLPhi)), Math.sin(utils.degToRad(sLPhi))*Math.cos(utils.degToRad(sLTheta))]);
 
   //populating uniform object
   uniforms.matrix = utils.transposeMatrix(projectionMatrix);
   uniforms.pMatrix = utils.transposeMatrix(viewWorldMatrix);
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
-  uniforms.ADir = [cx,cy,cz];
-  uniforms.eyePos = [cx,cy,cz];
-  // uniforms.diffuseColor = [0.0, 0.0, 0.0, 1];
   uniforms.u_texture = texture;
-  uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-  uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LAlightColor = [1, 1, 1, 1];
-  uniforms.specularColor = [1, 1, 1, 1];
-  uniforms.SpecShine = 1.0;
-  uniforms.DToonTh = 0.7;
-  uniforms.SToonTh = 0.7;
-  uniforms.specularType = [1,0,0,1];
-  uniforms.LPos = [cx,cy,cz];
-  uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-  uniforms.LConeOut = sliderConeOut;
-  uniforms.LConeIn = sliderConeIn;
-  uniforms.LDecay = sliderDecay; //0.9;
-  uniforms.LTarget = 90;
+  uniforms.eyePos = [cx,cy,cz];
+  // uniforms.LDPos = [0, 1, 1];
+  uniforms.LDir = directLightTransformed;
+  uniforms.SpecShine = 0.5;
+  uniforms.spotPos = utils.multiplyMatrix3Vector3(utils.sub3x3from4x4(viewMatrix),[0.0, -20, -10]);
+  uniforms.spotDir = spotLightTransformed;
+  uniforms.coneOut = 10;//180;
+  uniforms.coneIn = 10;
+  uniforms.decay = 0.1;
+  uniforms.target = 1;
+//   uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
+//   uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+//   uniforms.LAlightColor = [1, 1, 1, 1];
+//   uniforms.specularColor = [1, 1, 1, 1];
+//   uniforms.SpecShine = 1.0;
+//   uniforms.DToonTh = 0.7;
+//   uniforms.SToonTh = 0.7;
+//   uniforms.specularType = [1,0,0,1];
+//   uniforms.LPos = [cx,cy,cz];
+//   uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+//   uniforms.LConeOut = sliderConeOut;
+//   uniforms.LConeIn = sliderConeIn;
+//   uniforms.LDecay = sliderDecay; //0.9;
+//   uniforms.LTarget = 90;
+
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
