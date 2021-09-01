@@ -781,10 +781,10 @@ function moveCamera(){
   elevation = -50.0;
   angle = 0.0;
   delta = 0.1;
-  sliderConeIn=85;
-  sliderConeOut=17;
-  sliderDecay = 1;
-  sliderTarget = 61;
+  // sliderConeIn=85;
+  // sliderConeOut=17;
+  // sliderDecay = 1;
+  // sliderTarget = 61;
 }
 
 
