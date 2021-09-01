@@ -78,10 +78,10 @@ void main() {
   //sum of specular components
   vec4 specular = dSpecular + sSpecular;
   
+  //Ambient light
+  vec4 ambient = texel * 0.125; 
 
-  vec4 out_color = clamp(0.5*diffuse+0.5*specular, 0.0, 1.0);
-
+  //Final steps
+  vec4 out_color = clamp(0.5*diffuse+0.5*specular+ambient, 0.0, 1.0);
   color = vec4(out_color.rgb, 1.0);
-
-
 }
