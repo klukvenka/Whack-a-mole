@@ -9,7 +9,7 @@ function Game() {
 
     this.timer = {
         inteval: undefined,
-        countFrom: 10, //sec
+        countFrom: 60, //sec
         count: this.countFrom,
         progressView: document.getElementById('timer'),
         
@@ -31,8 +31,8 @@ function Game() {
                 game.gameOver();
             }
             // update the view
-            var progress = this.count / this.countFrom * 100;    
-            this.progressView.innerHTML = progress + "%";
+            //var progress = this.count / this.countFrom * 100;    
+            this.progressView.innerHTML = "00:" + this.count;
             //console.log(this.progressView.style.width = progress + "%");
 
         } 

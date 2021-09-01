@@ -90,7 +90,6 @@
   }
 
   .settingsElement{
-    display: list-item;
     align-items: center;
     height: 1.7em;
   }
