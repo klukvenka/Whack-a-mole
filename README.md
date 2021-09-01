@@ -4,7 +4,7 @@
 <img src="https://user-images.githubusercontent.com/58031911/131756715-04e1b20f-b563-43ce-bca3-51a72396b523.png" height="95%" width="95%"/>
 </p>
 
-Final project by Aida Gasanova and Marco Donzelli for Computer Graphics course of PoliMi A.Y. 2020/2021
+Final project for Computer Graphics course of PoliMi (A.Y. 2020/2021) by Aida Gasanova and Marco Donzelli 
 
 ## How to play
 Press play and move the hammer with `q` ,  `w` ,  `e` ,  `a` ,  `s`  keys. You have 60 seconds to hit as much moles as you can!
