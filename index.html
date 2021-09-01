@@ -27,7 +27,6 @@
   <script type="text/javascript" src="lib/jquery-3.6.0.min.js"></script>
   <script type="text/javascript" src="lib/quaternion.min.js"></script>
   <script type="text/javascript" src="lib/utils.js"></script>
-  <script type="text/javascript" src="lib/models.js"></script>
   <script type="text/javascript" src="lib/twgl-full.min.js"></script>
   <script type="text/javascript" src="game.js"></script>
   <script type="text/javascript" src="main.js"></script>
@@ -52,12 +51,12 @@
     <div class="settingsText" style="font-size: 16px;">Spot Light Parameters</div >
     <div class="settingsElement">
       <div class="settingsText">Dir &theta;</div> 
-      <div id="DirThetaValue" class="settingsValue">60</div>
+      <div id="DirThetaValue" class="settingsValue">0</div>
       <input id="DirThetaSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'DirThetaValue');">
     </div>
     <div class="settingsElement">
       <div class="settingsText">Dir &phi;</div> 
-      <div id="DirPhiValue" class="settingsValue">45</div>
+      <div id="DirPhiValue" class="settingsValue">0</div>
       <input id="DirPhiSlider" class="settingsSlider" type="range" min="-180" max="180" value="45" oninput="onSliderChange(this.value, 'DirPhiValue');">
     </div>
     <div class="settingsElement">
@@ -67,17 +66,17 @@
     </div>
     <div class="settingsElement">
       <div class="settingsText">Target</div> 
-      <div id="TargetValue" class="settingsValue">61</div>
+      <div id="TargetValue" class="settingsValue">20</div>
       <input id="TargetSlider" class="settingsSlider" type="range" min="0" max="100" value="61" oninput="onSliderChange(this.value, 'TargetValue');">
     </div>
     <div class="settingsElement">
       <div class="settingsText">Cone in</div> 
-      <div id="LConeInValue" class="settingsValue">80</div>
+      <div id="LConeInValue" class="settingsValue">20</div>
       <input id="LConeInSlider" class="settingsSlider" type="range" min="0" max="100" value="80" oninput="onSliderChange(this.value, 'LConeInValue');">
     </div>
     <div class="settingsElement">
       <div class="settingsText">Cone out</div> 
-      <div id="LConeOutValue" class="settingsValue">30</div>
+      <div id="LConeOutValue" class="settingsValue">20</div>
       <input id="LConeOutSlider" class="settingsSlider" type="range" min="0" max="150" value="30" oninput="onSliderChange(this.value, 'LConeOutValue');">
     </div>
   </div>

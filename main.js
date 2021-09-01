@@ -3,7 +3,7 @@ var gl = null,
   program = null;
 
 var game;
-var moleInitTimer; // for setInterval fucntion that changes state of random mole 
+var moleInitTimer; // for setInterval function that changes state of random mole 
 
 var lookRadius = 15;
 var fieldOfView = 60;
@@ -86,12 +86,12 @@ const uniformsEnv = {
 var bufferInfoEnv;
 
 // variables for sliders 
-var sliderConeIn=80;
-var sliderConeOut=30;
-var sLPhi = 45;
-var sLTheta = 60;
+var sliderConeIn=20;
+var sliderConeOut=20;
+var sLPhi = 0;
+var sLTheta = 0;
 var sliderDecay = 1;
-var sliderTarget = 61;
+var sliderTarget = 20;
 
 //MOUSE EVENT HANDLER
 var mouseState = false;
@@ -604,7 +604,64 @@ function animateHammer() {
   }
 }
 
-//
+//Camera Animation
+var lastCameraUpdateTime = null;
+var timeElapsed = 0;
+var posAtGameStart = [];
+var cameraAnimFinished = true;
+var doOnceCamera = true;
+
+//schedules movement of the camera before starting game
+function moveCamera(){
+  
+  if(doOnceCamera) {
+    posAtGameStart = [lookRadius, fieldOfView, elevation, angle, delta, sLPhi, sLTheta, sliderDecay, sliderTarget, sliderConeIn, sliderConeOut];
+    doOnceCamera = false;
+  }
+
+  let animDur = 1500;
+  let gamelookRadius = 15;
+  let gamefieldOfView = 30;
+  let gameElevation = -50.0;
+  let gameAngle = 0.0;
+  let gameDelta = 0.1;
+  let gameSLPhi = 8;
+  let gameSLTheta = 0;
+  let gameSliderDecay = 0.6;
+  let gameSliderTarget = 40;
+  let gameSliderConeIn = 0;
+  let gameSliderConeOut = 26;
+
+  var currentTime = (new Date).getTime();
+  let dt;
+  if (lastCameraUpdateTime) {
+    dt = (currentTime - lastCameraUpdateTime);
+  } else {
+    dt = 1 / 50;
+  }
+  lastCameraUpdateTime = currentTime;
+  
+  lookRadius += dt/animDur*(gamelookRadius-posAtGameStart[0]);
+  fieldOfView += dt/animDur*(gamefieldOfView-posAtGameStart[1]);
+  elevation += dt/animDur*(gameElevation-posAtGameStart[2]);
+  angle += dt/animDur*(gameAngle-posAtGameStart[3]);
+  delta += dt/animDur*(gameDelta-posAtGameStart[4]);
+  sLPhi += dt/animDur*(gameSLPhi-posAtGameStart[5]);
+  sLTheta += dt/animDur*(gameSLTheta-posAtGameStart[6]);
+  sliderDecay += dt/animDur*(gameSliderDecay-posAtGameStart[7]);
+  sliderTarget += dt/animDur*(gameSliderTarget-posAtGameStart[8]);
+  sliderConeIn += dt/animDur*(gameSliderConeIn-posAtGameStart[9]);
+  sliderConeOut += dt/animDur*(gameSliderConeOut-posAtGameStart[10]);
+
+  if(timeElapsed >= animDur){
+    cameraAnimFinished = true;
+    lastCameraUpdateTime = 0;
+  }
+
+  timeElapsed += dt;
+}
+
+
 function animate() {
   animateHammer();
   animateMoles();
@@ -612,6 +669,8 @@ function animate() {
 
 //draws the scene
 function drawScene() {
+   
+  if (!cameraAnimFinished) moveCamera();
   
   if(game.isStarted) {
     animate();
@@ -735,24 +794,20 @@ function main() {
 
 function onStartButtonClick() {
   document.getElementById("start_game").disabled = true; // disable button
-  lockAllSliders();
-  moveCamera();
-  game.Start();
-  moleInitTimer = setInterval(function() {
-    moleRand();
-  }, 1000);
-}
-
-function moveCamera(){
-  lookRadius = 15;
-  fieldOfView = 30;
-  elevation = -50.0;
-  angle = 0.0;
-  delta = 0.1;
+  cameraAnimFinished = false;
+  setTimeout(function(){
+    lockAllSliders();
+    game.Start();
+    moleInitTimer = setInterval(function() {
+      moleRand();
+    }, 1000);
+  }, 2500);
+  
 }
 
 function onSliderChange(slider_value, setting) {
-    document.getElementById(setting).innerHTML=slider_value;
+    slider_value = parseFloat(slider_value);
+    document.getElementById(setting).innerHTML = slider_value;
     if (setting=='fovValue') fieldOfView = slider_value;
     else if (setting=='DirThetaValue') sLTheta = slider_value;
     else if (setting=='DirPhiValue') sLPhi = slider_value;
