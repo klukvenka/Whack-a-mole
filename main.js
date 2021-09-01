@@ -683,13 +683,12 @@ function drawScene() {
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
   uniforms.u_texture = texture;
   uniforms.eyePos = [cx,cy,cz];
-  // uniforms.LDPos = [0, 1, 1];
   uniforms.LDir = directLightTransformed;
   uniforms.SpecShine = 0.5;
   uniforms.spotPos = utils.multiplyMatrix3Vector3(utils.sub3x3from4x4(viewMatrix),[0.0, -20, -10]);
   uniforms.spotDir = spotLightTransformed;
   uniforms.coneOut = sliderConeOut;
-  uniforms.coneIn = sliderConeIn;
+  uniforms.coneIn = sliderConeIn/100.0;//IN PERCENTAGE
   uniforms.decay = sliderDecay;
   uniforms.target = sliderTarget;;
 
@@ -784,11 +783,11 @@ function moveCamera(){
   delta = 0.1;
   sliderConeIn=85;
   sliderConeOut=17;
-  // LPhi = -45;
-  // LTheta = 60;
   sliderDecay = 1;
   sliderTarget = 61;
 }
+
+
 
 function onSliderChange(slider_value, setting) {
     document.getElementById(setting).innerHTML=slider_value;
