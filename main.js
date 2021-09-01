@@ -63,8 +63,8 @@ LPhi = -120;
 LTheta = -60;
 
 //SpotLight direction
-sLPhi = -120;
-sLTheta = -60;
+// sLPhi = -120;
+// sLTheta = -60;
 
 //Stores all the gometries of the objects
 var meshes = [];
@@ -112,8 +112,8 @@ var bufferInfoEnv;
 // variables for sliders 
 var sliderConeIn=80;
 var sliderConeOut=30;
-var LPhi = 45;
-var LTheta = 60;
+var sLPhi = 45;
+var sLTheta = 60;
 var sliderDecay = 1;
 var sliderTarget = 61;
 
@@ -793,8 +793,8 @@ function moveCamera(){
 function onSliderChange(slider_value, setting) {
     document.getElementById(setting).innerHTML=slider_value;
     if (setting=='fovValue') fieldOfView = slider_value;
-    else if (setting=='DirThetaValue') LTheta = slider_value;
-    else if (setting=='DirPhiValue') LPhi = slider_value;
+    else if (setting=='DirThetaValue') sLTheta = slider_value;
+    else if (setting=='DirPhiValue') sLPhi = slider_value;
     else if (setting=='DecayValue') sliderDecay = slider_value;
     else if (setting=='TargetValue') sliderTarget = slider_value;
     else if (setting=='LConeInValue') sliderConeIn = slider_value;
