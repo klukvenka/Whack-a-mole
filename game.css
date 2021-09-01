@@ -105,13 +105,6 @@
 
   }
 
-  /* .settingsSlider{
-    width: 150px;
-    margin-left: 2em;
-    margin-right: .3em;
-    opacity: 0.7;
-  } */
-
   .settingsSlider {
     background: linear-gradient(to right, #34016b 0%, #5202a8 25%, #6f02e3 50%, #6500d1 100%);
     border: #f9ca24 2px solid;
@@ -133,6 +126,11 @@
     float: right;
     min-width: 3.5em;
     order: 1;
+  }
+
+  hr {
+    width: 90%;
+    border: 2px dashed #faedaa;
   }
 
 

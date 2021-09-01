@@ -100,21 +100,6 @@ const uniforms = {
   target:[],
   SpecShine:[]
 
-//   SspecKwAng: [],
-//   LADir: [],
-//   LAlightColor: [],
-//   specularColor: [],
-//   SpecShine: 0.0,
-//   DToonTh: 0.0,
-//   SToonTh: 0.0,
-//   specularType: [],
-//   LPos: [],
-//   LSpotDir: [], // theta
-//   LConeOut: [],
-//   LConeIn: [],
-//   LDecay: [],
-//   LTarget: []
-
 };
 
 // uniforms for environment (skybox)
@@ -130,6 +115,7 @@ var sliderConeOut=30;
 var LPhi = 45;
 var LTheta = 60;
 var sliderDecay = 1;
+var sliderTarget = 61;
 
 // event handler
 var mouseState = false;
@@ -702,24 +688,10 @@ function drawScene() {
   uniforms.SpecShine = 0.5;
   uniforms.spotPos = utils.multiplyMatrix3Vector3(utils.sub3x3from4x4(viewMatrix),[0.0, -20, -10]);
   uniforms.spotDir = spotLightTransformed;
-  uniforms.coneOut = 10;//180;
-  uniforms.coneIn = 10;
-  uniforms.decay = 0.1;
-  uniforms.target = 1;
-//   uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
-//   uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-//   uniforms.LAlightColor = [1, 1, 1, 1];
-//   uniforms.specularColor = [1, 1, 1, 1];
-//   uniforms.SpecShine = 1.0;
-//   uniforms.DToonTh = 0.7;
-//   uniforms.SToonTh = 0.7;
-//   uniforms.specularType = [1,0,0,1];
-//   uniforms.LPos = [cx,cy,cz];
-//   uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
-//   uniforms.LConeOut = sliderConeOut;
-//   uniforms.LConeIn = sliderConeIn;
-//   uniforms.LDecay = sliderDecay; //0.9;
-//   uniforms.LTarget = 90;
+  uniforms.coneOut = sliderConeOut;
+  uniforms.coneIn = sliderConeIn;
+  uniforms.decay = sliderDecay;
+  uniforms.target = sliderTarget;;
 
 
   //binding buffers and attributes to program
@@ -796,8 +768,7 @@ window.onload = initWebGl;
 
 function onStartButtonClick() {
   document.getElementById("start_game").disabled = true; // disable button
-  document.getElementById('fovValue').innerHTML=" -"; // remove slider value
-  document.getElementById('fovSlider').disabled=true; // disable slider
+  lockAllSliders();
   moveCamera();
   game.Start();
   moleInitTimer = setInterval(function() {
@@ -810,8 +781,13 @@ function moveCamera(){
   fieldOfView = 30;
   elevation = -50.0;
   angle = 0.0;
-
   delta = 0.1;
+  sliderConeIn=80;
+  sliderConeOut=30;
+  LPhi = 45;
+  LTheta = 60;
+  sliderDecay = 1;
+  sliderTarget = 61;
 }
 
 function onSliderChange(slider_value, setting) {
@@ -820,9 +796,24 @@ function onSliderChange(slider_value, setting) {
     else if (setting=='DirThetaValue') LTheta = slider_value;
     else if (setting=='DirPhiValue') LPhi = slider_value;
     else if (setting=='DecayValue') sliderDecay = slider_value;
+    else if (setting=='TargetValue') sliderTarget = slider_value;
     else if (setting=='LConeInValue') sliderConeIn = slider_value;
     else if (setting=='LConeOutValue') sliderConeOut = slider_value;
-    
-  
 }
-LTheta
+
+function lockAllSliders() {
+  document.getElementById('fovValue').innerHTML=" -"; // remove slider value
+  document.getElementById('fovSlider').disabled=true; // disable slider
+  document.getElementById('DirThetaValue').innerHTML=" -"; // remove slider value
+  document.getElementById('DirThetaSlider').disabled=true; // disable slider
+  document.getElementById('DirPhiValue').innerHTML=" -"; // remove slider value
+  document.getElementById('DirPhiSlider').disabled=true; // disable slider
+  document.getElementById('DecayValue').innerHTML=" -"; // remove slider value
+  document.getElementById('DecaySlider').disabled=true; // disable slider
+  document.getElementById('TargetValue').innerHTML=" -"; // remove slider value
+  document.getElementById('TargetSlider').disabled=true; // disable slider
+  document.getElementById('LConeInValue').innerHTML=" -"; // remove slider value
+  document.getElementById('LConeInSlider').disabled=true; // disable slider
+  document.getElementById('LConeOutValue').innerHTML=" -"; // remove slider value
+  document.getElementById('LConeOutSlider').disabled=true; // disable slider
+}

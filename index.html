@@ -41,11 +41,15 @@
   </div>
 
   <div id="settings">
+    <br>
     <div class="settingsElement">
       <div class="settingsText">Field Of View</div> 
       <div id="fovValue" class="settingsValue">60</div>
       <input id="fovSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'fovValue');">
     </div>
+    <br>
+    <hr>
+
     <div class="settingsElement">
       <div class="settingsText">Dir &theta;</div> 
       <div id="DirThetaValue" class="settingsValue">60</div>
@@ -59,7 +63,12 @@
     <div class="settingsElement">
       <div class="settingsText">Decay</div> 
       <div id="DecayValue" class="settingsValue">1</div>
-      <input id="DecaySlider" class="settingsSlider" type="range" min="0" max="2" value="1" oninput="onSliderChange(this.value, 'DecayValue');">
+      <input id="DecaySlider" class="settingsSlider" type="range" min="0" max="2" value="1" step="0.1" oninput="onSliderChange(this.value, 'DecayValue');">
+    </div>
+    <div class="settingsElement">
+      <div class="settingsText">Target</div> 
+      <div id="TargetValue" class="settingsValue">61</div>
+      <input id="TargetSlider" class="settingsSlider" type="range" min="0" max="100" value="61" oninput="onSliderChange(this.value, 'TargetValue');">
     </div>
     <div class="settingsElement">
       <div class="settingsText">Cone in</div> 
@@ -82,11 +91,7 @@
   <div id="gameOver" style='display: none;'>
     <div class="game_over" onclick="window.location.reload();"></div>
   </div>
-  
 
-
-
-  
 </body>
 
 </html>
