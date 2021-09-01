@@ -685,7 +685,7 @@ function drawScene() {
   uniforms.coneOut = 10;//180;
   uniforms.coneIn = 10;
   uniforms.decay = 0.1;
-  uniforms.target = 10;
+  uniforms.target = 1;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);

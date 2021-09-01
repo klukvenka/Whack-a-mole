@@ -65,7 +65,7 @@ void main() {
   vec4 sLightDiffuse = sLightDiffuseCol * sDiffN;
 
   //sum of diffuse components
-  vec4 diffuse = dLightDiffuse+sLightDiffuse;
+  vec4 diffuse = dLightDiffuse;
 
   //Phong Specular for direct light
   vec4 dSpecColor = pow(clamp(dot(eyedirVec,-reflect(dLightDir,normalVec)), 0.0, 1.0), SpecShine)*texel;
@@ -79,7 +79,7 @@ void main() {
   vec4 specular = dSpecular + sSpecular;
   
 
-  vec4 out_color = clamp(0.7*diffuse+0.3*specular, 0.0, 1.0);
+  vec4 out_color = clamp(0.5*diffuse+0.5*specular, 0.0, 1.0);
 
   color = vec4(out_color.rgb, 1.0);
 
