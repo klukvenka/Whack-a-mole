@@ -47,7 +47,7 @@ void main() {
   vec3 dLightDir = normalize(-LDir);
 
   //spotlight direction (camera space)
-  vec3 sLightDir = -(normalize(spotPos - fs_pos));
+  vec3 sLightDir = (normalize(-(spotPos - fs_pos)));
 
   //spotlight color
   float num = dot(sLightDir, spotDir) - cos(radians(coneOut/2.0));
