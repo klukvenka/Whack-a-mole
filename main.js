@@ -57,6 +57,7 @@ var angle = 0.0;
 var delta = 0.1;
 var flag = 0;
 
+
 //Light direction
 LPhi = -120;
 LTheta = -60;
@@ -64,7 +65,6 @@ LTheta = -60;
 //SpotLight direction
 sLPhi = -120;
 sLTheta = -60;
-
 
 //Stores all the gometries of the objects
 var meshes = [];
@@ -99,6 +99,22 @@ const uniforms = {
   decay:[],
   target:[],
   SpecShine:[]
+
+//   SspecKwAng: [],
+//   LADir: [],
+//   LAlightColor: [],
+//   specularColor: [],
+//   SpecShine: 0.0,
+//   DToonTh: 0.0,
+//   SToonTh: 0.0,
+//   specularType: [],
+//   LPos: [],
+//   LSpotDir: [], // theta
+//   LConeOut: [],
+//   LConeIn: [],
+//   LDecay: [],
+//   LTarget: []
+
 };
 
 // uniforms for environment (skybox)
@@ -109,7 +125,11 @@ const uniformsEnv = {
 var bufferInfoEnv;
 
 // variables for sliders 
-var sliderConeOut=180;
+var sliderConeIn=80;
+var sliderConeOut=30;
+var LPhi = 45;
+var LTheta = 60;
+var sliderDecay = 1;
 
 // event handler
 var mouseState = false;
@@ -686,6 +706,21 @@ function drawScene() {
   uniforms.coneIn = 10;
   uniforms.decay = 0.1;
   uniforms.target = 1;
+//   uniforms.SspecKwAng = 0.0; //specular light coefficient 0-1 (in this case set to 0, only diffuse light)
+//   uniforms.LADir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+//   uniforms.LAlightColor = [1, 1, 1, 1];
+//   uniforms.specularColor = [1, 1, 1, 1];
+//   uniforms.SpecShine = 1.0;
+//   uniforms.DToonTh = 0.7;
+//   uniforms.SToonTh = 0.7;
+//   uniforms.specularType = [1,0,0,1];
+//   uniforms.LPos = [cx,cy,cz];
+//   uniforms.LSpotDir = [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))];
+//   uniforms.LConeOut = sliderConeOut;
+//   uniforms.LConeIn = sliderConeIn;
+//   uniforms.LDecay = sliderDecay; //0.9;
+//   uniforms.LTarget = 90;
+
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
@@ -782,6 +817,12 @@ function moveCamera(){
 function onSliderChange(slider_value, setting) {
     document.getElementById(setting).innerHTML=slider_value;
     if (setting=='fovValue') fieldOfView = slider_value;
+    else if (setting=='DirThetaValue') LTheta = slider_value;
+    else if (setting=='DirPhiValue') LPhi = slider_value;
+    else if (setting=='DecayValue') sliderDecay = slider_value;
+    else if (setting=='LConeInValue') sliderConeIn = slider_value;
     else if (setting=='LConeOutValue') sliderConeOut = slider_value;
+    
   
 }
+LTheta
