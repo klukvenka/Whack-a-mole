@@ -13,7 +13,6 @@ uniform vec3 eyePos;
 
 //Direct light parameters
 uniform vec3 LDir;
-//uniform vec3 LDPos;
 
 //Spotlight uniforms
 uniform vec3 spotPos;
@@ -23,12 +22,8 @@ uniform float coneIn;
 uniform float decay;
 uniform float target;
 
+//specular reflection shininess (for Phong BRDF)
 uniform float SpecShine;
-//uniform vec4 specularColor;
-
-//Specular toon parameters
-//uniform float DToonTh;
-//uniform float SToonTh;
 
 // Output color vector
 out vec4 color;

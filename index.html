@@ -21,16 +21,17 @@
 
 <body>
   <canvas id="c"></canvas>
+  
+  <!--Loading scripts -->
   <script type="text/javascript" src="lib/webgl-obj-loader.min.js"></script>
   <script type="text/javascript" src="lib/jquery-3.6.0.min.js"></script>
   <script type="text/javascript" src="lib/quaternion.min.js"></script>
   <script type="text/javascript" src="lib/utils.js"></script>
-  <script type="text/javascript" src="lib/cubeDefinition.js"></script>
   <script type="text/javascript" src="lib/models.js"></script>
   <script type="text/javascript" src="lib/twgl-full.min.js"></script>
   <script type="text/javascript" src="game.js"></script>
   <script type="text/javascript" src="main.js"></script>
-
+  
   <div id="timer">&nbsp</div>
 
   <div id="game">
@@ -41,11 +42,10 @@
   </div>
 
   <div id="settings">
-
     <div class="settingsElement">
       <div class="settingsText">Field Of View</div> 
       <div id="fovValue" class="settingsValue">60</div>
-      <input id="fovSlider" class="settingsSlider" type="range" min="0" max="180" value="60" oninput="onSliderChange(this.value, 'fovValue');">
+      <input id="fovSlider" class="settingsSlider" type="range" min="10" max="120" value="60" oninput="onSliderChange(this.value, 'fovValue');">
     </div>
     <br>
     <hr>
@@ -80,13 +80,7 @@
       <div id="LConeOutValue" class="settingsValue">30</div>
       <input id="LConeOutSlider" class="settingsSlider" type="range" min="0" max="150" value="30" oninput="onSliderChange(this.value, 'LConeOutValue');">
     </div>
-
-    <div id="slider">
-      <div id="custom-handle" class="ui-slider-handle"></div>
-    </div>
   </div>
-
-  
 
   <div id="gameOver" style='display: none;'>
     <div class="game_over" onclick="window.location.reload();"></div>

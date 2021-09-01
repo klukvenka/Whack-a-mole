@@ -8,37 +8,19 @@ var moleInitTimer; // for setInterval fucntion that changes state of random mole
 var lookRadius = 15;
 var fieldOfView = 60;
 
-//Copied from other whac-a-mole project (we have to rewrite this part)
-var settings = {
-    /** directories */
-    baseDir:null,
-    shaderDir:null,
-    assetDir:null,
-    /** variables  */
-    scaleFactor: 2.5,
-    
-    /** camera parameters */
-    cameraGamePosition: [0.0, 7.0, 4.0], 
-    cameraPosition: [0.0, 0.0, 0.0],
-    target: [0.0, 0.8 * 2.5, 0.0], //2.5 is te scale factor 
-    //the target is not the origin but the point of the cabinet where the moles jump. 
-    up: [0.0, 1.0, 0.0],
-    fieldOfView: 60,
+var scaleFactor = 2.5;
 
-    /** object positions */
-    moleSpacePosition: [0, 1.1, 0.2],
-    hammerStartingPosition: [0, 1.4, 1.8],
-    // hammerStartingPosition: [-1.5, 1.4, 1.3],
-    molesStartingPositions: [
-        [-0.63523, -0.6, 0],
-        [0, -0.6, 0],
-        [0.6353, -0.6, 0],
-        [-0.31763, -0.7, 0.4429],  
-        [0.31763, -0.7, 0.4429]
-    ],
+// Starting positions
+var moleSpacePosition = [0, 1.1, 0.2];
+var hammerStartingPosition = [0, 1.4, 1.8];
+var molesStartingPositions = [
+    [-0.63523, -0.6, 0],
+    [0, -0.6, 0],
+    [0.6353, -0.6, 0],
+    [-0.31763, -0.7, 0.4429],  
+    [0.31763, -0.7, 0.4429]];
 
-}
-
+//Matrices
 var projectionMatrix,
   perspectiveMatrix,
   viewMatrix,
@@ -58,13 +40,9 @@ var delta = 0.1;
 var flag = 0;
 
 
-//Light direction
+//Direct light direction
 LPhi = -120;
 LTheta = -60;
-
-//SpotLight direction
-// sLPhi = -120;
-// sLTheta = -60;
 
 //Stores all the gometries of the objects
 var meshes = [];
@@ -91,7 +69,6 @@ const uniforms = {
   u_texture: [],
   eyePos:[],
   LDir:[],
-  // LDPos:[],
   spotPos: [],
   spotDir:[],
   coneOut:[],
@@ -99,7 +76,6 @@ const uniforms = {
   decay:[],
   target:[],
   SpecShine:[]
-
 };
 
 // uniforms for environment (skybox)
@@ -117,9 +93,10 @@ var sLTheta = 60;
 var sliderDecay = 1;
 var sliderTarget = 61;
 
-// event handler
+//MOUSE EVENT HANDLER
 var mouseState = false;
 var lastMouseX = -100, lastMouseY = -100;
+
 function doMouseDown(event) {
   if(!game.isStarted){
     lastMouseX = event.pageX;
@@ -127,6 +104,7 @@ function doMouseDown(event) {
     mouseState = true;
   }
 }
+
 function doMouseUp(event) {
   if(!game.isStarted){
     lastMouseX = -100;
@@ -134,6 +112,7 @@ function doMouseUp(event) {
 	mouseState = false;
   }
 }
+
 function doMouseMove(event) {
   if(!game.isStarted){
     if(mouseState) {
@@ -150,6 +129,7 @@ function doMouseMove(event) {
   }
 	
 }
+
 function doMouseWheel(event) {
   if(!game.isStarted){
     var nLookRadius = lookRadius + event.wheelDelta/1000.0;
@@ -159,7 +139,7 @@ function doMouseWheel(event) {
 }
 }
 
-//Async function to load meshes (NOW WORKS, problem was we were calling it incorrectly AKA without waiting for it to dispatch the values)
+//Async function to load meshes
 async function loadMeshes(){
   let threedObjects = ['cabinet.obj', 'mole.obj', 'hammer.obj'];
   
@@ -178,13 +158,12 @@ function createBuffersInfo(gl){
         a_pos: mesh.vertices,
         a_norm: mesh.vertexNormals,
         in_uv: { numComponents: 2, data: mesh.textures},
-        //sending random colors (R G B alpha) for every vertex
-        // a_color: new Uint8Array (Array.from({length: (mesh.vertices.length/3)*4}, () => Math.floor(Math.random() * 255))),
         indices: mesh.indices}
       )
     )}
   ); 
 }
+
 
 function createEnvironmentBuffer(gl){
   var envVertPos = new Float32Array(
@@ -202,7 +181,7 @@ function createEnvironmentBuffer(gl){
 }
 
 
-//Async function that initialize WebGL and then starts the main program
+//Async function that initializes WebGL and then starts the main program
 async function initWebGl(){
   // Get a WebGL context
   canvas = document.getElementById("c");
@@ -231,7 +210,7 @@ async function initWebGl(){
     }
   );
 
-     //creates GL program
+  //creates GL program
   await utils.loadFiles(['Shaders/env-vs.glsl','Shaders/env-fs.glsl'], function(shader){
     envInfo = twgl.createProgramInfo(gl, shader);
     }
@@ -261,20 +240,21 @@ async function initWebGl(){
   //creating a buffer info for environment
   createEnvironmentBuffer(gl)
   
-
-   game = new Game();
+  //initializing new game object
+  game = new Game();
+  
   //initialization ended. Go to the main program
   main();
 }
 
 
-//sceneGraph definition (also blatantly copied from the the other guys whac-a-mole. WE HAVE TO REWRITE THIS!)
+//sceneGraph definition
 function defineSceneGraph() {
   var cabinetSpace = new Node();
-  cabinetSpace.localMatrix = utils.MakeWorld(0, 0, 0, 0, 0, 0, settings.scaleFactor);
+  cabinetSpace.localMatrix = utils.MakeWorld(0, 0, 0, 0, 0, 0, scaleFactor);
 
   var moleSpace = new Node();
-  moleSpace.localMatrix = utils.MakeTranslateMatrix(settings.moleSpacePosition[0], settings.moleSpacePosition[1], settings.moleSpacePosition[2]);
+  moleSpace.localMatrix = utils.MakeTranslateMatrix(moleSpacePosition[0], moleSpacePosition[1], moleSpacePosition[2]);
 
   var cabinetNode = new Node();
   cabinetNode.drawInfo = {
@@ -285,9 +265,9 @@ function defineSceneGraph() {
 
   var hammerNode = new Node();
   hammerNode.localMatrix = utils.MakeWorld(
-    settings.hammerStartingPosition[0],
-    settings.hammerStartingPosition[1],
-    settings.hammerStartingPosition[2],
+  hammerStartingPosition[0],
+   hammerStartingPosition[1],
+   hammerStartingPosition[2],
     0, 0, 0, 0.6
   );
 
@@ -299,14 +279,13 @@ function defineSceneGraph() {
 
   var mole1Node = new Node();
   mole1Node.localMatrix = utils.MakeTranslateMatrix(
-    settings.molesStartingPositions[0][0],
-    settings.molesStartingPositions[0][1],
-    settings.molesStartingPositions[0][2]
+    molesStartingPositions[0][0],
+    molesStartingPositions[0][1],
+    molesStartingPositions[0][2]
   );
 
   mole1Node.drawInfo = {
     programInfo: programInfo,
-    // u_color: [0.0, 0.0, 1.0],
     bufferLength: meshes[1].indices.length,
     vertexArray: bufferInfos[1],
   };
@@ -319,9 +298,9 @@ function defineSceneGraph() {
 
   var mole2Node = new Node();
   mole2Node.localMatrix = utils.MakeTranslateMatrix(
-    settings.molesStartingPositions[1][0],
-    settings.molesStartingPositions[1][1],
-    settings.molesStartingPositions[1][2]
+    molesStartingPositions[1][0],
+    molesStartingPositions[1][1],
+    molesStartingPositions[1][2]
   );
 
   mole2Node.drawInfo = {
@@ -337,9 +316,9 @@ function defineSceneGraph() {
 
   var mole3Node = new Node();
   mole3Node.localMatrix = utils.MakeTranslateMatrix(
-    settings.molesStartingPositions[2][0],
-    settings.molesStartingPositions[2][1],
-    settings.molesStartingPositions[2][2]
+    molesStartingPositions[2][0],
+    molesStartingPositions[2][1],
+    molesStartingPositions[2][2]
   );
 
   mole3Node.drawInfo = {
@@ -355,9 +334,9 @@ function defineSceneGraph() {
 
   var mole4Node = new Node();
   mole4Node.localMatrix = utils.MakeTranslateMatrix(
-    settings.molesStartingPositions[3][0],
-    settings.molesStartingPositions[3][1],
-    settings.molesStartingPositions[3][2]
+    molesStartingPositions[3][0],
+    molesStartingPositions[3][1],
+    molesStartingPositions[3][2]
   );
   mole4Node.drawInfo = {
     programInfo: programInfo,
@@ -372,9 +351,9 @@ function defineSceneGraph() {
 
   var mole5Node = new Node();
   mole5Node.localMatrix = utils.MakeTranslateMatrix(
-    settings.molesStartingPositions[4][0],
-    settings.molesStartingPositions[4][1],
-    settings.molesStartingPositions[4][2]);
+  molesStartingPositions[4][0],
+  molesStartingPositions[4][1],
+  molesStartingPositions[4][2]);
   mole5Node.drawInfo = {
     programInfo: programInfo,
     bufferLength: meshes[1].indices.length,
@@ -424,28 +403,26 @@ function defineSceneGraph() {
 
 //MOLES ANIMATION
 var molesState = [0, 0, 0, 0, 0];//1 moving up, -1 moving down, 0 still
-// var animFinished = [false, false, false, false, false];
 var molesPos = [-1, -1, -1, -1, -1];//1 up, -1 down
-
-//only for test purposes
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function moleRand(){
-  let randMole = getRandomInt(5);
-  
-  //if mole is down and steady start movement
-  if (molesPos[randMole] == -1 && molesState[randMole] == 0) { 
-      molesState[randMole] = 1;
-  }
-
-}
-
 var lastMolesTime = [null, null, null, null, null];
 var molesDy = [0, 0, 0, 0, 0];
 var moleTimers = [];
 
+//Generate random integer
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+//Schedule random mole movement
+function moleRand(){
+  let randMole = getRandomInt(5);
+  //if mole is down and steady start upward movement
+  if (molesPos[randMole] == -1 && molesState[randMole] == 0) { 
+      molesState[randMole] = 1;
+  }
+}
+
+//function to reschedule mole movement in each frame
 function animateMoles(){
   //check what moles were already moving in last frame and reschedule their movement in this frame
   molesState.forEach((state, id) => {
@@ -458,12 +435,11 @@ function animateMoles(){
           moveMole(id, -1);
           break;
       }
-
   }
   });
 }
 
-
+//function that moves the mole
 function moveMole(id, upDown) {
   var currentTime = (new Date).getTime();
   let dt;
@@ -492,9 +468,9 @@ function moveMole(id, upDown) {
     if(upDown == 1){//mole is up, reset local matrix to be up
       molesDy[id] = 0.6;
       objects[id+2].localMatrix = utils.MakeTranslateMatrix(
-        settings.molesStartingPositions[id][0],
-        settings.molesStartingPositions[id][1]+0.6,
-        settings.molesStartingPositions[id][2]
+        molesStartingPositions[id][0],
+        molesStartingPositions[id][1]+0.6,
+        molesStartingPositions[id][2]
       )
 
       //schedule the downward movement of the mole
@@ -508,9 +484,9 @@ function moveMole(id, upDown) {
     else {
       molesDy[id] = 0;
       objects[id+2].localMatrix = utils.MakeTranslateMatrix(
-      settings.molesStartingPositions[id][0],
-      settings.molesStartingPositions[id][1],
-      settings.molesStartingPositions[id][2]
+      molesStartingPositions[id][0],
+      molesStartingPositions[id][1],
+      molesStartingPositions[id][2]
     )
   }
 
@@ -527,7 +503,9 @@ var hammerAnimFinished = true;
 var lastHammerUpdateTime = null;
 var targetHole; //targeted hole
 var dxdzdrot = [0, 0, 0];//distance traveled by hammer on both axis and rotation
+var doOnce = false;
 
+//jquery to retrieve keypress events
 $(document).on('keypress', function(e){
   key = String.fromCharCode(e.which);
   
@@ -561,13 +539,10 @@ $(document).on('keypress', function(e){
   }
 } 
 );
-var doOnce = false;
+
+//function that actually animates hammer
 function animateHammer() {
   if (hammerAnimFinished) return;
-  // let hammer = objects[1];
-  // if (!positionBeforeAnim)
-  //   positionBeforeAnim = hammer.localMatrix
-
   var currentTime = (new Date).getTime();
   let dt;
   if (lastHammerUpdateTime) {
@@ -585,7 +560,6 @@ function animateHammer() {
   let roty = Math.atan(distanceX/distanceZ)*180/Math.PI;
   let rot = dt/120.0*rotx;
   let dx = dt/120.0*distanceX;
-  // let dy = dt/120.0*distanceY;
   let dz = dt/120.0*distanceZ;
 
   dxdzdrot[0] += Math.abs(dx);
@@ -617,11 +591,10 @@ function animateHammer() {
 
   if (dxdzdrot[0] >= Math.abs(distanceX) && dxdzdrot[1] >= Math.abs(distanceZ) && dxdzdrot[2] >= rotx){  
     dxdzdrot = [0, 0, 0];
-
     objects[1].localMatrix = utils.MakeWorld(
-      settings.hammerStartingPosition[0],
-      settings.hammerStartingPosition[1],
-      settings.hammerStartingPosition[2],
+      hammerStartingPosition[0],
+      hammerStartingPosition[1],
+      hammerStartingPosition[2],
       0, 0, 0, 0.6
     )
     hammerAnimFinished = true;
@@ -629,13 +602,10 @@ function animateHammer() {
     doOnce = false;
     return;
   }
-
-
 }
 
 //
 function animate() {
-  
   animateHammer();
   animateMoles();
 }
@@ -659,6 +629,7 @@ function drawScene() {
   cx = lookRadius * Math.sin(utils.degToRad(-angle)) * Math.cos(utils.degToRad(-elevation));
   cy = lookRadius * Math.sin(utils.degToRad(-elevation));
 
+  // update World Matrices for all objects in Scene graph and return the root of the graph
   root.updateWorldMatrix();
 
   //Renders all the 3D objects inside "objects"
@@ -690,8 +661,7 @@ function drawScene() {
   uniforms.coneOut = sliderConeOut;
   uniforms.coneIn = sliderConeIn/100.0;//IN PERCENTAGE
   uniforms.decay = sliderDecay;
-  uniforms.target = sliderTarget;;
-
+  uniforms.target = sliderTarget;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
@@ -700,7 +670,6 @@ function drawScene() {
   twgl.setUniforms(programInfo, uniforms);
   
   //draw the elements!
-  // gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
   twgl.drawBufferInfo(gl, object.drawInfo.vertexArray);
 
   });
@@ -738,6 +707,7 @@ function drawEnv() {
   twgl.setBuffersAndAttributes(gl, envInfo, bufferInfoEnv);
   twgl.setUniforms(envInfo, uniformsEnv);
   twgl.drawBufferInfo(gl, bufferInfoEnv);
+
   // specifying the depth comparison function, which sets the conditions under which the pixel will be drawn. 
   // lequal - (pass if the incoming value is less than or equal to the depth buffer value)
   gl.depthFunc(gl.LEQUAL); 
@@ -763,8 +733,6 @@ function main() {
   drawEnv();
 }
 
-window.onload = initWebGl;
-
 function onStartButtonClick() {
   document.getElementById("start_game").disabled = true; // disable button
   lockAllSliders();
@@ -781,13 +749,7 @@ function moveCamera(){
   elevation = -50.0;
   angle = 0.0;
   delta = 0.1;
-  // sliderConeIn=85;
-  // sliderConeOut=17;
-  // sliderDecay = 1;
-  // sliderTarget = 61;
 }
-
-
 
 function onSliderChange(slider_value, setting) {
     document.getElementById(setting).innerHTML=slider_value;
@@ -816,3 +778,5 @@ function lockAllSliders() {
   document.getElementById('LConeOutValue').innerHTML=" -"; // remove slider value
   document.getElementById('LConeOutSlider').disabled=true; // disable slider
 }
+
+window.onload = initWebGl;
