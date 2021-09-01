@@ -61,6 +61,11 @@ var flag = 0;
 LPhi = -120;
 LTheta = -60;
 
+//SpotLight direction
+sLPhi = -120;
+sLTheta = -60;
+
+
 //Stores all the gometries of the objects
 var meshes = [];
 
@@ -664,7 +669,7 @@ function drawScene() {
     utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))]);
   //transformed spot light for camera space
   var spotLightTransformed = utils.multiplyMatrix3Vector3(
-    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(LPhi))*Math.sin(utils.degToRad(LTheta)), Math.cos(utils.degToRad(LPhi)), Math.sin(utils.degToRad(LPhi))*Math.cos(utils.degToRad(LTheta))]);
+    utils.sub3x3from4x4(lightDirMatrix), [Math.sin(utils.degToRad(sLPhi))*Math.sin(utils.degToRad(sLTheta)), Math.cos(utils.degToRad(sLPhi)), Math.sin(utils.degToRad(sLPhi))*Math.cos(utils.degToRad(sLTheta))]);
 
   //populating uniform object
   uniforms.matrix = utils.transposeMatrix(projectionMatrix);
@@ -674,13 +679,13 @@ function drawScene() {
   uniforms.eyePos = [cx,cy,cz];
   // uniforms.LDPos = [0, 1, 1];
   uniforms.LDir = directLightTransformed;
-  uniforms.SpecShine = 1.0;
-  uniforms.spotPos = [0, -10, -1];
+  uniforms.SpecShine = 0.5;
+  uniforms.spotPos = utils.multiplyMatrix3Vector3(utils.sub3x3from4x4(viewMatrix),[0.0, -20, -10]);
   uniforms.spotDir = spotLightTransformed;
-  uniforms.coneOut = 20;//180;
-  uniforms.coneIn = 5;
-  uniforms.decay = 0.5;
-  uniforms.target = 100;
+  uniforms.coneOut = 10;//180;
+  uniforms.coneIn = 10;
+  uniforms.decay = 0.1;
+  uniforms.target = 10;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
