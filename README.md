@@ -17,7 +17,7 @@ The game is implemented in WebGL, GLSL and Javascript with the use of the follow
 * __[WebGL-obj-loader](https://www.npmjs.com/package/webgl-obj-loader)__, to load meshes from .obj file
 * __[jQuery 3.6.0](https://jquery.com/)__, to handle keyboard events
 
-### Scenegraph
+### Scene Graph
 The scene graph of the game holds two main nodes:
 * __cabinetSpace__ which contains the hammer, the cabinet and __moleSpace__
 * __moleSpace__ which contains the five moles
