@@ -675,12 +675,12 @@ function drawScene() {
   // uniforms.LDPos = [0, 1, 1];
   uniforms.LDir = directLightTransformed;
   uniforms.SpecShine = 1.0;
-  uniforms.spotPos = [0, 100, 100];
+  uniforms.spotPos = [0, -10, -1];
   uniforms.spotDir = spotLightTransformed;
-  uniforms.coneOut = sliderConeOut;//180;
-  uniforms.coneIn = 1;
-  uniforms.decay = 0.9;
-  uniforms.target = 1;
+  uniforms.coneOut = 20;//180;
+  uniforms.coneIn = 5;
+  uniforms.decay = 0.5;
+  uniforms.target = 100;
 
   //binding buffers and attributes to program
   twgl.setBuffersAndAttributes(gl, programInfo, object.drawInfo.vertexArray);
