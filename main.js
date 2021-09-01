@@ -86,7 +86,7 @@ const uniforms = {
   u_texture: [],
   eyePos:[],
   LDir:[],
-  LDPos:[],
+  // LDPos:[],
   spotPos: [],
   spotDir:[],
   coneOut:[],
@@ -672,7 +672,7 @@ function drawScene() {
   uniforms.nMatrix = utils.transposeMatrix(normalsMatrix);
   uniforms.u_texture = texture;
   uniforms.eyePos = [cx,cy,cz];
-  uniforms.LDPos = [0, 1, 1];
+  // uniforms.LDPos = [0, 1, 1];
   uniforms.LDir = directLightTransformed;
   uniforms.SpecShine = 1.0;
   uniforms.spotPos = [0, 100, 100];

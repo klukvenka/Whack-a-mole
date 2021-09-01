@@ -13,7 +13,7 @@ uniform vec3 eyePos;
 
 //Direct light parameters
 uniform vec3 LDir;
-uniform vec3 LDPos;
+//uniform vec3 LDPos;
 
 //Spotlight uniforms
 uniform vec3 spotPos;
