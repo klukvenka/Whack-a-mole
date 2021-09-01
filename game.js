@@ -25,16 +25,16 @@ function Game() {
         },
         tick: function() {
             this.count -=1;
+             // update the view
+            if(this.count <= 9) this.progressView.innerHTML = "00:0" + this.count;
+            else this.progressView.innerHTML = "00:" + this.count;
+           
             if(this.count <= 0) {
                 this.count = 0;
                 clearInterval(this.interval);
                 game.gameOver();
             }
-            // update the view
-            //var progress = this.count / this.countFrom * 100;    
-            this.progressView.innerHTML = "00:" + this.count;
-            //console.log(this.progressView.style.width = progress + "%");
-
+            
         } 
 
     }
