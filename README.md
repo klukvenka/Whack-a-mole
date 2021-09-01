@@ -1,7 +1,7 @@
 # Whack-a-Mole!
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/58031911/131756715-04e1b20f-b563-43ce-bca3-51a72396b523.png" height="75%" width="75%"/>
+<img src="https://user-images.githubusercontent.com/58031911/131756715-04e1b20f-b563-43ce-bca3-51a72396b523.png" height="95%" width="95%"/>
 </p>
 
 Final project by Aida Gasanova and Marco Donzelli for Computer Graphics course of PoliMi A.Y. 2020/2021
