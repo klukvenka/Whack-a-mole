@@ -29,9 +29,9 @@ The game is illuminated with two type of ligths, implemented in camera space:
 * __direct light__ still, can't be controlled by the user
 * __spot light__ direction controllable by the user along with usual spot parameters such as __coneIn__,__coneOut__, etc.
 
-The __BRDFs__ implemented in the shaders are the Lambert model for the diffuse part and the Phong specular specular part.
+The __BRDFs__ implemented in the shaders are the Lambert model for the diffuse part and Phong for the specular part.
 
-Also ambient light is implemented by simplying summing a term in the output vector that provides a little bit more of the colour of the texel.
+Also ambient light is implemented by simply summing a term in the output vector that provides a little bit more of the colour from the texel.
 
 ### Skybox
 
